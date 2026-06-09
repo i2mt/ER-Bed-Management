@@ -6,32 +6,49 @@
   <meta name="theme-color" content="#0b3b5f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="مدیریت تخت">
-  <title>مدیریت تخت اورژانس | تحویل با QR</title>
-  <!-- QR Code library -->
+  <title>مدیریت تخت اورژانس | حرفه‌ای</title>
+  <!-- QR & WebRTC -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-  <!-- html5-qrcode scanner -->
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
     }
 
+    /* Light mode (default) */
     body {
       font-family: system-ui, 'Segoe UI', 'Vazirmatn', 'Roboto', sans-serif;
       background: #eef2f7;
       margin: 0;
       padding: 0 8px 16px 8px;
       color: #1e2a3e;
+      transition: background 0.2s, color 0.2s;
     }
+
+    /* Dark mode */
+    body.dark {
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+    body.dark .bed-card {
+      background: #1e293b;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+    body.dark .bed-card.occupied { background: #2d1a1a; border-top-color: #f87171; }
+    body.dark .bed-card.empty { background: #1a2e1a; border-top-color: #4ade80; }
+    body.dark .bed-status.occupied { background: #7f1a1a; color: #fecaca; }
+    body.dark .empty .bed-status { background: #14532d; color: #bbf7d0; }
+    body.dark .er-row { background: #1e293b80; }
+    body.dark .btn { background: #334155; border-color: #475569; color: #f1f5f9; }
+    body.dark .btn-primary { background: #1e4a6e; color: white; }
+    body.dark .badge-stats { background: #1e293b; color: #cbd5e1; }
+    body.dark .qr-panel, body.dark .footer-note, body.dark .credit-line { background: #1e293bcc; color: #cbd5e1; }
 
     .app-container {
       max-width: 100%;
       margin: 0 auto;
     }
 
-    /* compact header */
     .header {
       display: flex;
       justify-content: space-between;
@@ -42,16 +59,10 @@
       padding-bottom: 4px;
       border-bottom: 1px solid #cbd5e1;
     }
+    body.dark .header { border-bottom-color: #334155; }
 
-    h1 {
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin: 0;
-      background: linear-gradient(135deg, #0b3b5f, #1b6b8f);
-      background-clip: text;
-      -webkit-background-clip: text;
-      color: transparent;
-    }
+    h1 { font-size: 1.2rem; font-weight: 700; margin: 0; background: linear-gradient(135deg, #0b3b5f, #1b6b8f); background-clip: text; -webkit-background-clip: text; color: transparent; }
+    body.dark h1 { background: linear-gradient(135deg, #60a5fa, #34d399); background-clip: text; -webkit-background-clip: text; color: transparent; }
 
     .badge-stats {
       background: white;
@@ -61,10 +72,8 @@
       font-weight: 600;
       display: flex;
       gap: 8px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
 
-    /* compact action buttons */
     .action-buttons {
       display: flex;
       gap: 6px;
@@ -72,7 +81,6 @@
       margin: 6px 0 8px 0;
       justify-content: center;
     }
-
     .btn {
       border: none;
       background: white;
@@ -84,42 +92,30 @@
       align-items: center;
       gap: 4px;
       cursor: pointer;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.08);
       transition: 0.05s linear;
-      background-color: #f8fafc;
       border: 1px solid #cbd5e1;
       font-family: inherit;
     }
+    .btn-primary { background: #0b3b5f; border: none; color: white; }
+    .btn-success { background: #15803d; border: none; color: white; }
+    .btn-danger { background: #b91c1c; border: none; color: white; }
+    .btn-secondary { background: #4b5563; border: none; color: white; }
+    .btn-warning { background: #d97706; border: none; color: white; }
+    .btn:active { transform: scale(0.97); }
 
-    .btn-primary {
+    .filter-group {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+    .filter-btn.active {
       background: #0b3b5f;
-      border: none;
       color: white;
-    }
-    .btn-primary:active { background: #0a2e4a; transform: scale(0.97); }
-
-    .btn-success {
-      background: #15803d;
       border: none;
-      color: white;
     }
-    .btn-success:active { background: #0f5c2c; transform: scale(0.97); }
+    body.dark .filter-btn.active { background: #3b82f6; }
 
-    .btn-danger {
-      background: #b91c1c;
-      border: none;
-      color: white;
-    }
-    .btn-danger:active { background: #991b1b; transform: scale(0.97); }
-
-    .btn-secondary {
-      background: #4b5563;
-      border: none;
-      color: white;
-      font-size: 0.7rem;
-    }
-
-    /* compact qr panel */
     .qr-panel {
       background: white;
       border-radius: 20px;
@@ -128,70 +124,14 @@
       text-align: center;
       box-shadow: 0 1px 4px rgba(0,0,0,0.05);
     }
+    #qrcode { display: flex; justify-content: center; margin: 4px auto; }
+    #qrcode img, #qrcode canvas { max-width: 130px; border-radius: 12px; padding: 4px; background: white; }
+    .scanner-container { margin-top: 6px; border-radius: 16px; overflow: hidden; background: #00000010; }
+    #reader { width: 100%; min-height: 200px; }
 
-    #qrcode {
-      display: flex;
-      justify-content: center;
-      margin: 4px auto;
-    }
-    #qrcode img, #qrcode canvas {
-      max-width: 130px;
-      width: 100%;
-      border-radius: 12px;
-      padding: 4px;
-      background: white;
-      border: 1px solid #e2e8f0;
-    }
-
-    .scanner-container {
-      margin-top: 6px;
-      border-radius: 16px;
-      overflow: hidden;
-      background: #00000010;
-    }
-    #reader {
-      width: 100%;
-      min-height: 200px;
-    }
-
-    /* bed rows - more compact */
-    .er-row {
-      margin-bottom: 18px;
-      background: #ffffffcc;
-      backdrop-filter: blur(2px);
-      border-radius: 20px;
-      padding: 6px 6px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-    }
-
-    .row-title {
-      padding: 0 6px 6px 6px;
-      font-weight: 700;
-      font-size: 0.85rem;
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-      border-right: 3px solid #0b3b5f;
-      margin-right: 4px;
-    }
-
-    .row-badge {
-      background: #e2e8f0;
-      border-radius: 30px;
-      padding: 1px 8px;
-      font-size: 0.6rem;
-      font-weight: normal;
-    }
-
-    /* vertical grid - show many beds at once */
-    .beds-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
-      gap: 8px;
-      padding: 2px 4px;
-    }
-
-    /* bed card - fully touchable */
+    .er-row { margin-bottom: 18px; background: #ffffffcc; backdrop-filter: blur(2px); border-radius: 20px; padding: 6px; }
+    .row-title { padding: 0 6px 6px 6px; font-weight: 700; font-size: 0.85rem; display: flex; align-items: baseline; gap: 8px; border-right: 3px solid #0b3b5f; margin-right: 4px; }
+    .beds-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 8px; padding: 2px 4px; }
     .bed-card {
       background: white;
       border-radius: 18px;
@@ -202,102 +142,60 @@
       text-align: center;
       box-shadow: 0 1px 3px rgba(0,0,0,0.08);
       border-top: 3px solid;
-      transition: 0.05s linear;
       cursor: pointer;
-      user-select: none;
+      transition: 0.05s linear;
     }
-
-    .bed-card.occupied {
-      background: #fff5f5;
-      border-top-color: #dc2626;
-    }
-    .bed-card.empty {
-      background: #f0fdf4;
-      border-top-color: #22c55e;
-    }
-    .bed-card:active {
-      transform: scale(0.97);
-      opacity: 0.9;
-    }
-
-    .bed-number {
-      font-weight: 800;
-      font-size: 1.1rem;
-      margin: 2px 0 0;
-    }
-
-    .bed-status {
-      font-size: 0.6rem;
-      font-weight: 700;
-      border-radius: 30px;
-      padding: 2px 6px;
-      margin: 4px 0 2px;
-      background: rgba(0,0,0,0.05);
-    }
+    .bed-card.occupied { background: #fff5f5; border-top-color: #dc2626; }
+    .bed-card.empty { background: #f0fdf4; border-top-color: #22c55e; }
+    .bed-card:active { transform: scale(0.97); }
+    .bed-number { font-weight: 800; font-size: 1.1rem; margin: 2px 0 0; }
+    .bed-status { font-size: 0.6rem; font-weight: 700; border-radius: 30px; padding: 2px 6px; margin: 4px 0 2px; background: rgba(0,0,0,0.05); }
     .occupied .bed-status { color: #b91c1c; background: #fee2e2; }
     .empty .bed-status { color: #15803d; background: #dcfce7; }
-
-    /* optional small indicator instead of button, but we removed button to reduce clutter */
-    .touch-hint {
-      font-size: 0.55rem;
-      color: #4b5563;
-      margin-top: 3px;
-      opacity: 0.6;
-    }
-
-    .footer-note {
-      margin-top: 16px;
+    .touch-hint { font-size: 0.55rem; color: #4b5563; opacity: 0.6; }
+    .footer-note { margin-top: 16px; text-align: center; font-size: 0.6rem; background: #f1f5f9; border-radius: 24px; padding: 6px; }
+    .credit-line {
       text-align: center;
       font-size: 0.6rem;
-      color: #475569;
       background: #f1f5f9;
       border-radius: 24px;
-      padding: 6px;
+      padding: 5px 8px;
+      margin-top: 8px;
+      color: #334155;
+      direction: ltr;
     }
-
-    .toast-msg {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #1e293b;
-      color: white;
-      padding: 6px 14px;
-      border-radius: 40px;
-      font-size: 0.7rem;
-      z-index: 1000;
-      animation: fadeOut 2s ease forwards;
-      pointer-events: none;
-      white-space: nowrap;
-    }
-    @keyframes fadeOut {
-      0% { opacity: 1; transform: translateX(-50%) translateY(0); }
-      70% { opacity: 1; }
-      100% { opacity: 0; transform: translateX(-50%) translateY(-8px); visibility: hidden; }
-    }
-
-    @media (max-width: 480px) {
-      .beds-grid { grid-template-columns: repeat(auto-fill, minmax(68px, 1fr)); gap: 6px; }
-      .bed-number { font-size: 1rem; }
-    }
+    body.dark .credit-line { background: #1e293bcc; color: #94a3b8; }
+    .toast-msg { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 6px 14px; border-radius: 40px; font-size: 0.7rem; z-index: 1000; animation: fadeOut 2s ease forwards; pointer-events: none; white-space: nowrap; }
+    @keyframes fadeOut { 0% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+    @media (max-width: 480px) { .beds-grid { grid-template-columns: repeat(auto-fill, minmax(68px, 1fr)); } }
   </style>
 </head>
 <body>
 <div class="app-container">
   <div class="header">
     <h1>🛏️ مدیریت تخت اورژانس</h1>
-    <div class="badge-stats">
-      <span>🟢 <span id="emptyCount">0</span></span>
-      <span>🔴 <span id="occupiedCount">0</span></span>
-    </div>
+    <div class="badge-stats"><span>🟢 <span id="emptyCount">0</span></span><span>🔴 <span id="occupiedCount">0</span></span></div>
   </div>
 
-  <!-- Compact QR panel -->
-  <div class="qr-panel">
+  <!-- Action row -->
+  <div class="action-buttons">
+    <button id="undoBtn" class="btn btn-secondary" title="بازگشت به وضعیت قبلی">↩️ برگشت</button>
+    <button id="darkModeBtn" class="btn btn-secondary">🌙 حالت شب</button>
+    <button id="webrtcSyncBtn" class="btn btn-primary">🔄 همگام‌سازی مستقیم</button>
+    <button id="clearAllBtn" class="btn btn-danger">🗑️ همه تخلیه</button>
+  </div>
+  <!-- Filter buttons -->
+  <div class="filter-group">
+    <button id="filterAll" class="btn filter-btn active">همه</button>
+    <button id="filterEmpty" class="btn filter-btn">🟢 فقط خالی</button>
+    <button id="filterOccupied" class="btn filter-btn">🔴 فقط اشغال</button>
+  </div>
+
+  <!-- QR panel for legacy handoff + WebRTC signaling -->
+  <div class="qr-panel" id="qrPanel">
     <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
-      <button id="generateQrBtn" class="btn btn-primary">📱 تولید QR تحویل</button>
-      <button id="scanQrBtn" class="btn btn-success">📷 اسکن QR</button>
-      <button id="clearAllBtn" class="btn btn-danger">🗑️ همه تخلیه</button>
+      <button id="legacyQrBtn" class="btn btn-secondary">📱 QR قدیمی (تحویل)</button>
+      <button id="cancelSyncBtn" class="btn btn-danger" style="display: none;">❌ لغو همگام‌سازی</button>
     </div>
     <div id="qrDisplayArea" style="margin-top: 6px; display: none;">
       <div id="qrcode"></div>
@@ -307,55 +205,72 @@
       <div id="reader" class="scanner-container"></div>
       <button id="stopScanBtn" class="btn btn-secondary" style="margin-top: 6px;">❌ لغو اسکن</button>
     </div>
+    <div id="webrtcStatus" style="font-size: 0.65rem; margin-top: 6px; color: #2c6e9e;"></div>
   </div>
 
-  <!-- dynamic rows (3 rows) -->
   <div id="rowsContainer"></div>
-  <div class="footer-note">
-    ✅ لمس هر تخت → پذیرش / ترخیص (بدون نیاز به دکمه جدا) <br>
-    📱 QR بسازید و به شیفت بعد نشان دهید · یا QR شیفت قبل را اسکن کنید
-  </div>
+  <div class="footer-note">✅ لمس هر تخت → پذیرش/ترخیص · دکمه برگشت: بازگشت به وضعیت قبل · فیلتر: خالی/اشغال · همگام‌سازی مستقیم: دو دستگاه بدون اینترنت</div>
+  <div class="credit-line">Designed and developed by Mohammad Mahdi Taghavi</div>
 </div>
 
 <script>
-  // ---------- STATE ----------
-  const STORAGE_KEY = 'er_bed_compact_qr';
+  // ---------- STATE & HISTORY ----------
+  const STORAGE_KEY = 'er_bed_ultimate';
   const TOTAL_BEDS = 42;
   let bedsOccupied = new Array(TOTAL_BEDS).fill(false);
+  let historyStack = [];     // array of snapshots (max 10)
+  let currentFilter = 'all'; // 'all', 'empty', 'occupied'
   
-  const ROWS = [
-    { name: "🩺 ردیف اول", start: 1, end: 14 },
-    { name: "🩺 ردیف دوم", start: 15, end: 28 },
-    { name: "🩺 ردیف سوم", start: 29, end: 42 }
-  ];
+  const ROWS = [{ name: "🩺 ردیف اول", start: 1, end: 14 }, { name: "🩺 ردیف دوم", start: 15, end: 28 }, { name: "🩺 ردیف سوم", start: 29, end: 42 }];
   
-  let html5QrScanner = null;
+  // Helper: save to history before mutation
+  function pushToHistory() {
+    const snapshot = bedsOccupied.slice();
+    historyStack.push(snapshot);
+    if (historyStack.length > 10) historyStack.shift();
+    localStorage.setItem(STORAGE_KEY + '_history', JSON.stringify(historyStack));
+  }
   
-  // load / save
-  function loadState() {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length === TOTAL_BEDS) {
-          bedsOccupied = parsed;
-          return;
-        }
-      } catch(e) {}
-    }
-    // demo occupied beds (realistic mix)
-    const demo = [1,3,5,8,12,16,19,22,25,30,34,37,40,42];
-    bedsOccupied.fill(false);
-    demo.forEach(b => { if(b>=1 && b<=TOTAL_BEDS) bedsOccupied[b-1] = true; });
+  function undo() {
+    if (historyStack.length === 0) { showToast("هیچ عملی برای بازگشت وجود ندارد"); return; }
+    const previous = historyStack.pop();
+    bedsOccupied = previous.slice();
+    persistState();
+    renderFiltered();
+    showToast("↩️ بازگشت به وضعیت قبل", 1200);
+    // update history stack in storage
+    localStorage.setItem(STORAGE_KEY + '_history', JSON.stringify(historyStack));
   }
   
   function persistState() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(bedsOccupied));
   }
   
+  function loadState() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length === TOTAL_BEDS) bedsOccupied = parsed;
+      } catch(e) {}
+    }
+    if (bedsOccupied.every(v=>v===false)) { // default demo
+      const demo = [1,3,5,8,12,16,19,22,25,30,34,37,40,42];
+      demo.forEach(b => { if(b>=1 && b<=TOTAL_BEDS) bedsOccupied[b-1] = true; });
+    }
+    // load history
+    const savedHistory = localStorage.getItem(STORAGE_KEY + '_history');
+    if (savedHistory) {
+      try { historyStack = JSON.parse(savedHistory); } catch(e) { historyStack = []; }
+    } else {
+      historyStack = [];
+      pushToHistory(); // initial state
+    }
+  }
+  
   function updateCounters() {
-    const occ = bedsOccupied.filter(v => v === true).length;
-    document.getElementById('emptyCount').innerText = TOTAL_BEDS - occ;
+    const occ = bedsOccupied.filter(v=>v).length;
+    document.getElementById('emptyCount').innerText = TOTAL_BEDS-occ;
     document.getElementById('occupiedCount').innerText = occ;
   }
   
@@ -369,46 +284,43 @@
     setTimeout(() => toast.remove(), duration);
   }
   
-  // toggle bed status (admit/discharge)
+  // toggle bed with history
   function toggleBed(index) {
-    if (index < 0 || index >= TOTAL_BEDS) return;
-    const newStatus = !bedsOccupied[index];
-    bedsOccupied[index] = newStatus;
+    if (index<0 || index>=TOTAL_BEDS) return;
+    pushToHistory();
+    bedsOccupied[index] = !bedsOccupied[index];
     persistState();
-    renderAllRows();  // re-render to update UI
+    renderFiltered();
     const bedNum = index+1;
-    if (newStatus) {
-      showToast(`➕ تخت ${bedNum} پذیرش شد (اشغال)`);
-    } else {
-      showToast(`✅ تخت ${bedNum} ترخیص شد (خالی)`);
-    }
+    showToast(bedsOccupied[index] ? `➕ تخت ${bedNum} پذیرش شد` : `✅ تخت ${bedNum} ترخیص شد`);
   }
   
-  // render beds with full card touch (no inner button)
-  function renderAllRows() {
+  // ---------- FILTER LOGIC ----------
+  function renderFiltered() {
     const container = document.getElementById('rowsContainer');
     if (!container) return;
     let html = '';
     for (const row of ROWS) {
       const { name, start, end } = row;
-      html += `<div class="er-row">
-        <div class="row-title">
-          <span>${name}</span>
-          <span class="row-badge">تخت‌های ${start}-${end}</span>
-        </div>
-        <div class="beds-grid">`;
-      for (let b = start; b <= end; b++) {
+      let bedsInRow = [];
+      for (let b=start; b<=end; b++) {
         const idx = b-1;
         const occ = bedsOccupied[idx];
-        const statusText = occ ? "اشغال" : "خالی";
-        const cls = occ ? "occupied" : "empty";
-        html += `
-          <div class="bed-card ${cls}" data-bed-idx="${idx}">
-            <div class="bed-number">${b}</div>
-            <div class="bed-status">${statusText}</div>
-            <div class="touch-hint">👆 لمس برای تغییر</div>
-          </div>
-        `;
+        let visible = true;
+        if (currentFilter === 'empty' && occ === true) visible = false;
+        if (currentFilter === 'occupied' && occ === false) visible = false;
+        if (visible) bedsInRow.push({num:b, idx, occ});
+      }
+      if (bedsInRow.length === 0) continue; // skip empty row in filter
+      html += `<div class="er-row"><div class="row-title"><span>${name}</span><span class="row-badge">تخت‌های ${start}-${end}</span></div><div class="beds-grid">`;
+      for (let bed of bedsInRow) {
+        const cls = bed.occ ? "occupied" : "empty";
+        const statusText = bed.occ ? "اشغال" : "خالی";
+        html += `<div class="bed-card ${cls}" data-bed-idx="${bed.idx}">
+          <div class="bed-number">${bed.num}</div>
+          <div class="bed-status">${statusText}</div>
+          <div class="touch-hint">👆 لمس</div>
+        </div>`;
       }
       html += `</div></div>`;
     }
@@ -416,163 +328,238 @@
     updateCounters();
   }
   
-  // event delegation for bed-card clicks (whole tile)
-  function attachBedTouchEvents() {
-    if (!window._bedGlobalTouch) {
-      document.body.addEventListener('click', (e) => {
-        // find the closest bed-card element
-        const card = e.target.closest('.bed-card');
-        if (!card) return;
-        const idxAttr = card.getAttribute('data-bed-idx');
-        if (idxAttr === null) return;
-        const bedIndex = parseInt(idxAttr, 10);
-        if (!isNaN(bedIndex) && bedIndex >= 0 && bedIndex < TOTAL_BEDS) {
-          e.preventDefault();
-          toggleBed(bedIndex);
-        }
-      });
-      window._bedGlobalTouch = true;
-    }
+  function setFilter(filter) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    if (filter === 'all') document.getElementById('filterAll').classList.add('active');
+    if (filter === 'empty') document.getElementById('filterEmpty').classList.add('active');
+    if (filter === 'occupied') document.getElementById('filterOccupied').classList.add('active');
+    renderFiltered();
   }
   
-  // ----- QR Handoff: encode current state as JSON -----
-  function getExportData() {
-    return {
-      v: "2",
-      ts: Date.now(),
-      beds: bedsOccupied.slice()
+  // ---------- DARK MODE ----------
+  function toggleDarkMode() {
+    document.body.classList.toggle('dark');
+    const btn = document.getElementById('darkModeBtn');
+    if (document.body.classList.contains('dark')) btn.innerHTML = "☀️ حالت روز";
+    else btn.innerHTML = "🌙 حالت شب";
+    localStorage.setItem('darkMode', document.body.classList.contains('dark'));
+  }
+  
+  // ---------- WEBRTC PEER-TO-PEER SYNC (direct device to device) ----------
+  let peerConnection = null;
+  let dataChannel = null;
+  let webrtcActive = false;
+  const webrtcStatusDiv = document.getElementById('webrtcStatus');
+  
+  async function initiateWebRTCSync() {
+    if (webrtcActive) { showToast("همگام‌سازی در حال انجام است"); return; }
+    // Create offer as host
+    webrtcStatusDiv.innerText = "🔵 ایجاد اتصال... کد QR را برای دستگاه دیگر نشان دهید";
+    peerConnection = new RTCPeerConnection();
+    dataChannel = peerConnection.createDataChannel("bedsync");
+    setupDataChannelEvents(dataChannel);
+    
+    peerConnection.onicecandidate = (event) => {
+      if (event.candidate) return;
+      // after gathering, create offer
     };
+    const offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(offer);
+    // wait for ICE gathering
+    await new Promise(resolve => {
+      if (peerConnection.iceGatheringState === 'complete') resolve();
+      else peerConnection.onicegatheringstatechange = () => {
+        if (peerConnection.iceGatheringState === 'complete') resolve();
+      };
+    });
+    const sdpString = JSON.stringify({ type: peerConnection.localDescription.type, sdp: peerConnection.localDescription.sdp });
+    displayQRForData(sdpString, "offer");
+    document.getElementById('cancelSyncBtn').style.display = "inline-flex";
   }
   
-  function generateQrCode() {
-    const exportObj = getExportData();
-    const jsonStr = JSON.stringify(exportObj);
+  function setupDataChannelEvents(channel) {
+    channel.onopen = () => {
+      webrtcStatusDiv.innerText = "✅ همگام‌سازی متصل! ارسال وضعیت...";
+      const currentState = { beds: bedsOccupied.slice(), timestamp: Date.now() };
+      channel.send(JSON.stringify(currentState));
+    };
+    channel.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.beds && Array.isArray(data.beds) && data.beds.length === TOTAL_BEDS) {
+          pushToHistory();
+          bedsOccupied = data.beds.slice();
+          persistState();
+          renderFiltered();
+          showToast("🔄 وضعیت از دستگاه دیگر به‌روز شد", 2000);
+          webrtcStatusDiv.innerText = "✅ همگام‌سازی کامل شد";
+          closeWebRTC();
+        } else {
+          showToast("داده نامعتبر دریافت شد", 1500);
+        }
+      } catch(e) { console.warn(e); }
+    };
+    channel.onclose = () => { webrtcStatusDiv.innerText = "❌ اتصال بسته شد"; closeWebRTC(); };
+    channel.onerror = () => { webrtcStatusDiv.innerText = "خطا در ارتباط"; closeWebRTC(); };
+  }
+  
+  async function answerWebRTC(offerSdpJson) {
+    if (webrtcActive) return;
+    webrtcStatusDiv.innerText = "🟢 در حال پاسخ به درخواست...";
+    peerConnection = new RTCPeerConnection();
+    peerConnection.ondatachannel = (event) => {
+      dataChannel = event.channel;
+      setupDataChannelEvents(dataChannel);
+    };
+    const offer = JSON.parse(offerSdpJson);
+    await peerConnection.setRemoteDescription(new RTCSessionDescription({ type: offer.type, sdp: offer.sdp }));
+    const answer = await peerConnection.createAnswer();
+    await peerConnection.setLocalDescription(answer);
+    await new Promise(resolve => {
+      if (peerConnection.iceGatheringState === 'complete') resolve();
+      else peerConnection.onicegatheringstatechange = () => {
+        if (peerConnection.iceGatheringState === 'complete') resolve();
+      };
+    });
+    const answerSdp = JSON.stringify({ type: peerConnection.localDescription.type, sdp: peerConnection.localDescription.sdp });
+    displayQRForData(answerSdp, "answer");
+    document.getElementById('cancelSyncBtn').style.display = "inline-flex";
+  }
+  
+  function displayQRForData(dataStr, type) {
     const qrDiv = document.getElementById('qrcode');
     qrDiv.innerHTML = "";
-    try {
-      new QRCode(qrDiv, {
-        text: jsonStr,
-        width: 150,
-        height: 150,
-        colorDark: "#0b3b5f",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.L
-      });
-      document.getElementById('qrDisplayArea').style.display = "block";
-      document.getElementById('scannerArea').style.display = "none";
-      if (html5QrScanner) {
-        html5QrScanner.stop().catch(e=>console.warn);
-        html5QrScanner = null;
-      }
-      showToast("📱 کد QR ساخته شد. شیفت بعد اسکن کند.", 1800);
-    } catch(e) {
-      showToast("خطا در ساخت QR", 1200);
-    }
+    new QRCode(qrDiv, { text: dataStr, width: 140, height: 140 });
+    document.getElementById('qrDisplayArea').style.display = "block";
+    document.getElementById('scannerArea').style.display = "none";
+    webrtcStatusDiv.innerText = type === "offer" ? "📷 دستگاه دیگر این QR را اسکن کند" : "📷 QR پاسخ را اسکن کنید";
   }
   
-  function hideQrPanel() {
-    document.getElementById('qrDisplayArea').style.display = "none";
-    document.getElementById('qrcode').innerHTML = "";
-  }
-  
-  // QR Scanning
-  async function startScanner() {
+  async function scanWebRTCQR() {
+    if (webrtcActive) { showToast("ابتدا همگام‌سازی جاری را لغو کنید"); return; }
     document.getElementById('qrDisplayArea').style.display = "none";
     const scannerDiv = document.getElementById('scannerArea');
     scannerDiv.style.display = "block";
     const readerElem = document.getElementById('reader');
     readerElem.innerHTML = "";
-    
-    if (html5QrScanner) {
-      try { await html5QrScanner.stop(); } catch(e) {}
-      html5QrScanner = null;
-    }
-    
-    html5QrScanner = new Html5Qrcode("reader");
-    const qrCodeSuccessCallback = (decodedText) => {
+    const html5QrScanner = new Html5Qrcode("reader");
+    const onSuccess = async (decodedText) => {
       try {
         const data = JSON.parse(decodedText);
-        if (data.beds && Array.isArray(data.beds) && data.beds.length === TOTAL_BEDS) {
-          const valid = data.beds.every(item => typeof item === 'boolean');
-          if (valid) {
-            bedsOccupied = data.beds.slice();
-            persistState();
-            renderAllRows();
-            const occCount = bedsOccupied.filter(v=>v).length;
-            showToast(`✅ وضعیت شیفت قبل بارگذاری شد! ${occCount} تخت پر`, 2500);
-            if (html5QrScanner) {
-              html5QrScanner.stop().then(() => {
-                scannerDiv.style.display = "none";
-                html5QrScanner = null;
-              }).catch(e=>console.warn);
-            } else {
-              scannerDiv.style.display = "none";
-            }
-            return;
-          }
-        }
-        showToast("❌ QR نامعتبر: داده تخت‌ها صحیح نیست", 1800);
-      } catch (err) {
-        showToast("❌ QR نامعتبر", 1500);
-      }
+        if (data.type && data.sdp) {
+          if (data.type === "offer") {
+            await answerWebRTC(decodedText);
+            await html5QrScanner.stop();
+            scannerDiv.style.display = "none";
+          } else if (data.type === "answer") {
+            // complete connection
+            if (!peerConnection) return;
+            await peerConnection.setRemoteDescription(new RTCSessionDescription({ type: data.type, sdp: data.sdp }));
+            webrtcStatusDiv.innerText = "✅ اتصال برقرار شد، در حال دریافت وضعیت...";
+            await html5QrScanner.stop();
+            scannerDiv.style.display = "none";
+          } else { showToast("QR معتبر نیست"); }
+        } else { showToast("QR مربوط به همگام‌سازی نیست"); }
+      } catch(e) { showToast("QR نامعتبر"); }
     };
-    
-    const config = { fps: 10, qrbox: { width: 240, height: 240 } };
-    try {
-      await html5QrScanner.start({ facingMode: "environment" }, config, qrCodeSuccessCallback);
-    } catch(err) {
-      showToast("دسترسی به دوربین ممکن نیست", 1800);
-      scannerDiv.style.display = "none";
-      html5QrScanner = null;
-    }
+    await html5QrScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 200 }, onSuccess);
+    window._tempScanner = html5QrScanner;
+    document.getElementById('stopScanBtn').onclick = () => { html5QrScanner.stop(); scannerDiv.style.display = "none"; };
   }
   
-  function stopScanner() {
-    if (html5QrScanner) {
-      html5QrScanner.stop().catch(e=>console.warn);
-      html5QrScanner = null;
-    }
+  function closeWebRTC() {
+    if (dataChannel) dataChannel.close();
+    if (peerConnection) peerConnection.close();
+    peerConnection = null; dataChannel = null; webrtcActive = false;
+    document.getElementById('cancelSyncBtn').style.display = "none";
+    document.getElementById('qrDisplayArea').style.display = "none";
     document.getElementById('scannerArea').style.display = "none";
-    const readerDiv = document.getElementById('reader');
-    if (readerDiv) readerDiv.innerHTML = "";
+    webrtcStatusDiv.innerText = "";
   }
   
-  // Clear all beds
+  function cancelWebRTC() { closeWebRTC(); showToast("همگام‌سازی لغو شد"); }
+  
+  // legacy QR handoff (simple state transfer)
+  function generateLegacyQr() {
+    const data = { v:"2", beds: bedsOccupied.slice() };
+    const qrDiv = document.getElementById('qrcode');
+    qrDiv.innerHTML = "";
+    new QRCode(qrDiv, { text: JSON.stringify(data), width: 140, height: 140 });
+    document.getElementById('qrDisplayArea').style.display = "block";
+    document.getElementById('scannerArea').style.display = "none";
+    showToast("QR تحویل شیفت قدیمی ساخته شد");
+  }
+  function startLegacyScan() {
+    const scannerDiv = document.getElementById('scannerArea');
+    scannerDiv.style.display = "block";
+    const readerElem = document.getElementById('reader');
+    readerElem.innerHTML = "";
+    const scanner = new Html5Qrcode("reader");
+    scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 200 }, (decoded) => {
+      try {
+        const data = JSON.parse(decoded);
+        if (data.beds && Array.isArray(data.beds) && data.beds.length===TOTAL_BEDS) {
+          pushToHistory();
+          bedsOccupied = data.beds.slice();
+          persistState();
+          renderFiltered();
+          showToast("وضعیت از QR بارگذاری شد");
+          scanner.stop(); scannerDiv.style.display = "none";
+        } else throw new Error();
+      } catch(e) { showToast("QR نامعتبر"); }
+    });
+    document.getElementById('stopScanBtn').onclick = () => { scanner.stop(); scannerDiv.style.display = "none"; };
+  }
+  
+  // clear all
   function setAllEmpty() {
-    if (confirm("⚠️ همه تخت‌ها خالی می‌شوند؟ ادامه می‌دهید")) {
+    if (confirm("همه تخت‌ها خالی شوند؟")) {
+      pushToHistory();
       bedsOccupied.fill(false);
       persistState();
-      renderAllRows();
-      showToast("🧹 همه تخت‌ها تخلیه شدند", 1400);
+      renderFiltered();
+      showToast("همه تخت‌ها تخلیه شدند");
     }
   }
   
-  // Service Worker for PWA (offline)
-  function registerServiceWorker() {
-    if ('serviceWorker' in navigator) {
-      const swCode = `const CACHE_NAME='er-bed-compact-v1';const urls=['./','./index.html'];self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(urls))));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
-      const blob = new Blob([swCode], {type: 'application/javascript'});
-      const swUrl = URL.createObjectURL(blob);
-      navigator.serviceWorker.register(swUrl).catch(e=>console.warn);
-    }
+  // event delegation for bed taps
+  function attachGlobalBedTap() {
+    document.body.addEventListener('click', (e) => {
+      const card = e.target.closest('.bed-card');
+      if (!card) return;
+      const idx = card.getAttribute('data-bed-idx');
+      if (idx !== null) toggleBed(parseInt(idx,10));
+    });
   }
   
-  // initialization
+  // init
   function init() {
     loadState();
     persistState();
-    renderAllRows();
-    attachBedTouchEvents();
-    
-    document.getElementById('generateQrBtn').addEventListener('click', generateQrCode);
-    document.getElementById('scanQrBtn').addEventListener('click', startScanner);
-    document.getElementById('clearAllBtn').addEventListener('click', setAllEmpty);
-    document.getElementById('hideQrBtn').addEventListener('click', hideQrPanel);
-    document.getElementById('stopScanBtn').addEventListener('click', stopScanner);
-    
-    registerServiceWorker();
+    renderFiltered();
+    attachGlobalBedTap();
+    // buttons
+    document.getElementById('undoBtn').onclick = undo;
+    document.getElementById('darkModeBtn').onclick = toggleDarkMode;
+    document.getElementById('webrtcSyncBtn').onclick = initiateWebRTCSync;
+    document.getElementById('clearAllBtn').onclick = setAllEmpty;
+    document.getElementById('filterAll').onclick = () => setFilter('all');
+    document.getElementById('filterEmpty').onclick = () => setFilter('empty');
+    document.getElementById('filterOccupied').onclick = () => setFilter('occupied');
+    document.getElementById('legacyQrBtn').onclick = generateLegacyQr;
+    document.getElementById('hideQrBtn').onclick = () => document.getElementById('qrDisplayArea').style.display = "none";
+    document.getElementById('cancelSyncBtn').onclick = cancelWebRTC;
+    document.getElementById('stopScanBtn').onclick = () => { document.getElementById('scannerArea').style.display = "none"; if(window._tempScanner) window._tempScanner.stop(); };
+    // extra scan for legacy
+    const legacyScanBtn = document.createElement('button');
+    legacyScanBtn.innerText = "📷 اسکن QR قدیمی";
+    legacyScanBtn.className = "btn btn-secondary";
+    legacyScanBtn.onclick = startLegacyScan;
+    document.querySelector('.qr-panel .action-buttons').appendChild(legacyScanBtn);
+    // dark mode from storage
+    if (localStorage.getItem('darkMode') === 'true') toggleDarkMode();
   }
-  
   init();
 </script>
 </body>
