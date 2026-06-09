@@ -6,28 +6,12 @@
   <meta name="theme-color" content="#0b3b5f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="مدیریت تخت‌های اورژانس">
-  <link rel="manifest" href="data:application/manifest+json,{
-    %22name%22:%22مدیریت%20تخت%20اورژانس%22,
-    %22short_name%22:%22تخت‌ها%22,
-    %22start_url%22:%22.%22,
-    %22display%22:%22standalone%22,
-    %22background_color%22:%22%23f4f7fc%22,
-    %22theme_color%22:%22%230b3b5f%22,
-    %22icons%22:[
-      {
-        %22src%22:%22data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230b3b5f'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle' fill='white' font-family='Arial'%3E🛏️%3C/text%3E%3C/svg%3E%22,
-        %22sizes%22:%22any%22,
-        %22type%22:%22image/svg+xml%22
-      },
-      {
-        %22src%22:%22data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%230b3b5f'/%3E%3Ctext x='96' y='128' font-size='100' text-anchor='middle' fill='white' font-family='Arial'%3E🛏️%3C/text%3E%3C/svg%3E%22,
-        %22sizes%22:%22192x192%22,
-        %22type%22:%22image/svg+xml%22
-      }
-    ]
-  }">
-  <title>مدیریت تخت اورژانس</title>
+  <meta name="apple-mobile-web-app-title" content="مدیریت تخت">
+  <title>مدیریت تخت اورژانس | تحویل با QR</title>
+  <!-- QR Code library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <!-- html5-qrcode scanner -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -35,10 +19,10 @@
     }
 
     body {
-      font-family: system-ui, 'Segoe UI', 'Tahoma', 'Vazirmatn', 'Roboto', sans-serif;
+      font-family: system-ui, 'Segoe UI', 'Vazirmatn', 'Roboto', sans-serif;
       background: #eef2f7;
       margin: 0;
-      padding: 0 12px 24px 12px;
+      padding: 0 8px 16px 8px;
       color: #1e2a3e;
     }
 
@@ -47,62 +31,61 @@
       margin: 0 auto;
     }
 
-    /* Header */
+    /* compact header */
     .header {
       display: flex;
       justify-content: space-between;
-      align-items: baseline;
+      align-items: center;
       flex-wrap: wrap;
-      gap: 12px;
-      margin: 16px 0 12px 0;
-      padding-bottom: 8px;
-      border-bottom: 2px solid #cbd5e1;
+      gap: 6px;
+      margin: 8px 0 6px 0;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #cbd5e1;
     }
 
     h1 {
-      font-size: 1.5rem;
-      font-weight: 600;
+      font-size: 1.2rem;
+      font-weight: 700;
       margin: 0;
       background: linear-gradient(135deg, #0b3b5f, #1b6b8f);
       background-clip: text;
       -webkit-background-clip: text;
       color: transparent;
-      letter-spacing: -0.3px;
     }
 
     .badge-stats {
       background: white;
-      border-radius: 60px;
-      padding: 6px 12px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      border-radius: 40px;
+      padding: 4px 10px;
+      font-size: 0.7rem;
+      font-weight: 600;
       display: flex;
-      gap: 12px;
+      gap: 8px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
 
-    /* Action Buttons */
+    /* compact action buttons */
     .action-buttons {
       display: flex;
-      gap: 10px;
+      gap: 6px;
       flex-wrap: wrap;
-      margin: 12px 0 12px 0;
+      margin: 6px 0 8px 0;
       justify-content: center;
     }
 
     .btn {
       border: none;
       background: white;
-      padding: 8px 14px;
-      border-radius: 40px;
+      padding: 5px 10px;
+      border-radius: 32px;
       font-weight: 500;
-      font-size: 0.85rem;
+      font-size: 0.7rem;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       cursor: pointer;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      transition: 0.1s ease;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+      transition: 0.05s linear;
       background-color: #f8fafc;
       border: 1px solid #cbd5e1;
       font-family: inherit;
@@ -112,134 +95,116 @@
       background: #0b3b5f;
       border: none;
       color: white;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-
-    .btn-primary:active {
-      background: #0a2e4a;
-      transform: scale(0.97);
-    }
+    .btn-primary:active { background: #0a2e4a; transform: scale(0.97); }
 
     .btn-success {
       background: #15803d;
       border: none;
       color: white;
     }
+    .btn-success:active { background: #0f5c2c; transform: scale(0.97); }
 
-    .btn-success:active {
-      background: #0f5c2c;
-      transform: scale(0.97);
-    }
-
-    .btn-warning {
+    .btn-danger {
       background: #b91c1c;
       border: none;
       color: white;
     }
+    .btn-danger:active { background: #991b1b; transform: scale(0.97); }
 
-    .btn-warning:active {
-      background: #991b1b;
-      transform: scale(0.97);
-    }
-
-    /* Clipboard status row */
-    .clipboard-area {
-      background: #f1f5f9;
-      border-radius: 20px;
-      padding: 10px 16px;
-      margin: 8px 0 16px;
-      border: 1px solid #cbd5e1;
-      font-size: 0.8rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .clipboard-status {
-      font-size: 0.75rem;
-      color: #2c3e66;
-      flex: 1;
-      word-break: break-word;
-    }
-
-    /* Toast notification */
-    .toast-msg {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #1e293b;
+    .btn-secondary {
+      background: #4b5563;
+      border: none;
       color: white;
-      padding: 8px 20px;
-      border-radius: 40px;
-      font-size: 0.8rem;
-      z-index: 1000;
-      animation: fadeOut 2.5s ease forwards;
-      pointer-events: none;
-      white-space: nowrap;
-      font-weight: 500;
-      font-family: inherit;
+      font-size: 0.7rem;
     }
 
-    @keyframes fadeOut {
-      0% { opacity: 1; transform: translateX(-50%) translateY(0); }
-      70% { opacity: 1; }
-      100% { opacity: 0; transform: translateX(-50%) translateY(-10px); visibility: hidden; }
+    /* compact qr panel */
+    .qr-panel {
+      background: white;
+      border-radius: 20px;
+      padding: 6px 10px;
+      margin: 4px 0 10px;
+      text-align: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
     }
 
-    /* Row sections */
+    #qrcode {
+      display: flex;
+      justify-content: center;
+      margin: 4px auto;
+    }
+    #qrcode img, #qrcode canvas {
+      max-width: 130px;
+      width: 100%;
+      border-radius: 12px;
+      padding: 4px;
+      background: white;
+      border: 1px solid #e2e8f0;
+    }
+
+    .scanner-container {
+      margin-top: 6px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #00000010;
+    }
+    #reader {
+      width: 100%;
+      min-height: 200px;
+    }
+
+    /* bed rows - more compact */
     .er-row {
-      margin-bottom: 28px;
+      margin-bottom: 18px;
       background: #ffffffcc;
       backdrop-filter: blur(2px);
-      border-radius: 28px;
-      padding: 12px 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      border-radius: 20px;
+      padding: 6px 6px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
     }
 
     .row-title {
-      padding: 0 8px 12px 8px;
+      padding: 0 6px 6px 6px;
       font-weight: 700;
-      font-size: 1rem;
+      font-size: 0.85rem;
       display: flex;
       align-items: baseline;
-      gap: 12px;
-      border-right: 4px solid #0b3b5f;
-      margin-right: 6px;
+      gap: 8px;
+      border-right: 3px solid #0b3b5f;
+      margin-right: 4px;
     }
 
     .row-badge {
       background: #e2e8f0;
-      border-radius: 40px;
-      padding: 2px 12px;
-      font-size: 0.7rem;
+      border-radius: 30px;
+      padding: 1px 8px;
+      font-size: 0.6rem;
       font-weight: normal;
-      color: #334155;
     }
 
-    /* Vertical grid: multiple beds per row, scroll only vertically */
+    /* vertical grid - show many beds at once */
     .beds-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
-      gap: 12px;
-      padding: 6px 4px;
+      grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+      gap: 8px;
+      padding: 2px 4px;
     }
 
-    /* Bed tile */
+    /* bed card - fully touchable */
     .bed-card {
       background: white;
-      border-radius: 20px;
-      padding: 8px 4px;
+      border-radius: 18px;
+      padding: 6px 2px;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-      transition: 0.05s linear;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
       border-top: 3px solid;
+      transition: 0.05s linear;
       cursor: pointer;
+      user-select: none;
     }
 
     .bed-card.occupied {
@@ -250,87 +215,70 @@
       background: #f0fdf4;
       border-top-color: #22c55e;
     }
-
-    .bed-number {
-      font-weight: 800;
-      font-size: 1.25rem;
-      margin: 4px 0 2px;
-      color: #0f172a;
-    }
-
-    .bed-status {
-      font-size: 0.65rem;
-      font-weight: 600;
-      border-radius: 40px;
-      padding: 2px 8px;
-      margin: 4px 0 6px;
-      background: rgba(0,0,0,0.05);
-    }
-
-    .occupied .bed-status {
-      color: #b91c1c;
-      background: #fee2e2;
-    }
-    .empty .bed-status {
-      color: #15803d;
-      background: #dcfce7;
-    }
-
-    .bed-action {
-      width: 100%;
-      border: none;
-      padding: 6px 0;
-      border-radius: 40px;
-      font-weight: 600;
-      font-size: 0.7rem;
-      margin-top: 4px;
-      transition: 0.05s linear;
-      cursor: pointer;
-      background: #f1f5f9;
-      color: #1e293b;
-    }
-
-    .occupied .bed-action {
-      background: #ef4444;
-      color: white;
-    }
-    .empty .bed-action {
-      background: #22c55e;
-      color: white;
-    }
-
-    .bed-action:active {
-      transform: scale(0.96);
+    .bed-card:active {
+      transform: scale(0.97);
       opacity: 0.9;
     }
 
+    .bed-number {
+      font-weight: 800;
+      font-size: 1.1rem;
+      margin: 2px 0 0;
+    }
+
+    .bed-status {
+      font-size: 0.6rem;
+      font-weight: 700;
+      border-radius: 30px;
+      padding: 2px 6px;
+      margin: 4px 0 2px;
+      background: rgba(0,0,0,0.05);
+    }
+    .occupied .bed-status { color: #b91c1c; background: #fee2e2; }
+    .empty .bed-status { color: #15803d; background: #dcfce7; }
+
+    /* optional small indicator instead of button, but we removed button to reduce clutter */
+    .touch-hint {
+      font-size: 0.55rem;
+      color: #4b5563;
+      margin-top: 3px;
+      opacity: 0.6;
+    }
+
     .footer-note {
-      margin-top: 20px;
+      margin-top: 16px;
       text-align: center;
-      font-size: 0.7rem;
+      font-size: 0.6rem;
       color: #475569;
       background: #f1f5f9;
-      border-radius: 30px;
-      padding: 10px;
+      border-radius: 24px;
+      padding: 6px;
     }
 
-    /* Responsive: larger screens show more beds */
-    @media (min-width: 500px) {
-      .beds-grid {
-        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-        gap: 14px;
-      }
+    .toast-msg {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b;
+      color: white;
+      padding: 6px 14px;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      z-index: 1000;
+      animation: fadeOut 2s ease forwards;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    @keyframes fadeOut {
+      0% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      70% { opacity: 1; }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-8px); visibility: hidden; }
     }
 
-    @media (max-width: 420px) {
-      .beds-grid {
-        grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
-        gap: 8px;
-      }
-      .btn {
-        padding: 6px 12px;
-        font-size: 0.7rem;
-      }
+    @media (max-width: 480px) {
+      .beds-grid { grid-template-columns: repeat(auto-fill, minmax(68px, 1fr)); gap: 6px; }
+      .bed-number { font-size: 1rem; }
     }
   </style>
 </head>
@@ -339,47 +287,51 @@
   <div class="header">
     <h1>🛏️ مدیریت تخت اورژانس</h1>
     <div class="badge-stats">
-      <span>🟢 <span id="emptyCount">0</span> خالی</span>
-      <span>🔴 <span id="occupiedCount">0</span> پر</span>
+      <span>🟢 <span id="emptyCount">0</span></span>
+      <span>🔴 <span id="occupiedCount">0</span></span>
     </div>
   </div>
 
-  <!-- Clipboard sharing without external files -->
-  <div class="clipboard-area">
-    <span>📋 <strong>تحویل شیفت:</strong></span>
-    <span class="clipboard-status" id="clipboardStatusText">وضعیت تخت‌ها را کپی کنید و برای شیفت بعد بچسبانید</span>
+  <!-- Compact QR panel -->
+  <div class="qr-panel">
+    <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+      <button id="generateQrBtn" class="btn btn-primary">📱 تولید QR تحویل</button>
+      <button id="scanQrBtn" class="btn btn-success">📷 اسکن QR</button>
+      <button id="clearAllBtn" class="btn btn-danger">🗑️ همه تخلیه</button>
+    </div>
+    <div id="qrDisplayArea" style="margin-top: 6px; display: none;">
+      <div id="qrcode"></div>
+      <button id="hideQrBtn" class="btn btn-secondary" style="margin-top: 4px;">✖️ بستن</button>
+    </div>
+    <div id="scannerArea" style="display: none; margin-top: 6px;">
+      <div id="reader" class="scanner-container"></div>
+      <button id="stopScanBtn" class="btn btn-secondary" style="margin-top: 6px;">❌ لغو اسکن</button>
+    </div>
   </div>
 
-  <div class="action-buttons">
-    <button id="copyStatusBtn" class="btn btn-primary">📋 کپی وضعیت تخت‌ها</button>
-    <button id="pasteStatusBtn" class="btn btn-success">📥 چسباندن وضعیت</button>
-    <button id="clearAllBtn" class="btn btn-warning">🗑️ همه تخلیه</button>
-  </div>
-
-  <!-- dynamic rows (3 rows, each with responsive grid) -->
+  <!-- dynamic rows (3 rows) -->
   <div id="rowsContainer"></div>
-
   <div class="footer-note">
-    ✅ هر تخت را لمس کنید → پذیرش / ترخیص<br>
-    📋 «کپی وضعیت» را بزنید، سپس در اپلیکیشن شیفت بعد «چسباندن وضعیت» را بزنید.<br>
-    🧹 دکمه «همه تخلیه» تمام تخت‌ها را خالی می‌کند.
+    ✅ لمس هر تخت → پذیرش / ترخیص (بدون نیاز به دکمه جدا) <br>
+    📱 QR بسازید و به شیفت بعد نشان دهید · یا QR شیفت قبل را اسکن کنید
   </div>
 </div>
 
 <script>
   // ---------- STATE ----------
-  const STORAGE_KEY = 'er_bed_manager_persian';
+  const STORAGE_KEY = 'er_bed_compact_qr';
   const TOTAL_BEDS = 42;
   let bedsOccupied = new Array(TOTAL_BEDS).fill(false);
   
-  // Rows definition (Persian labels)
   const ROWS = [
-    { name: "🩺 ردیف اول (سمت چپ)", start: 1, end: 14 },
-    { name: "🩺 ردیف دوم (وسط)", start: 15, end: 28 },
-    { name: "🩺 ردیف سوم (سمت راست)", start: 29, end: 42 }
+    { name: "🩺 ردیف اول", start: 1, end: 14 },
+    { name: "🩺 ردیف دوم", start: 15, end: 28 },
+    { name: "🩺 ردیف سوم", start: 29, end: 42 }
   ];
   
-  // ---- Load / Save ----
+  let html5QrScanner = null;
+  
+  // load / save
   function loadState() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
@@ -389,14 +341,12 @@
           bedsOccupied = parsed;
           return;
         }
-      } catch(e) { console.warn(e); }
+      } catch(e) {}
     }
-    // Default demo: 14 occupied beds mixed
-    const demoOccupied = [1,3,5,8,12,16,19,22,25,30,34,37,40,42];
+    // demo occupied beds (realistic mix)
+    const demo = [1,3,5,8,12,16,19,22,25,30,34,37,40,42];
     bedsOccupied.fill(false);
-    demoOccupied.forEach(b => {
-      if (b >=1 && b <= TOTAL_BEDS) bedsOccupied[b-1] = true;
-    });
+    demo.forEach(b => { if(b>=1 && b<=TOTAL_BEDS) bedsOccupied[b-1] = true; });
   }
   
   function persistState() {
@@ -404,50 +354,59 @@
   }
   
   function updateCounters() {
-    const occupied = bedsOccupied.filter(v => v === true).length;
-    const empty = TOTAL_BEDS - occupied;
-    document.getElementById('emptyCount').innerText = empty;
-    document.getElementById('occupiedCount').innerText = occupied;
+    const occ = bedsOccupied.filter(v => v === true).length;
+    document.getElementById('emptyCount').innerText = TOTAL_BEDS - occ;
+    document.getElementById('occupiedCount').innerText = occ;
   }
   
-  function showToast(message, duration = 2200) {
-    const existing = document.querySelector('.toast-msg');
-    if (existing) existing.remove();
+  function showToast(msg, duration=1800) {
+    const old = document.querySelector('.toast-msg');
+    if (old) old.remove();
     const toast = document.createElement('div');
     toast.className = 'toast-msg';
-    toast.innerText = message;
+    toast.innerText = msg;
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), duration);
   }
   
-  // ---- Render all beds in vertical grid layout (no horizontal scroll) ----
+  // toggle bed status (admit/discharge)
+  function toggleBed(index) {
+    if (index < 0 || index >= TOTAL_BEDS) return;
+    const newStatus = !bedsOccupied[index];
+    bedsOccupied[index] = newStatus;
+    persistState();
+    renderAllRows();  // re-render to update UI
+    const bedNum = index+1;
+    if (newStatus) {
+      showToast(`➕ تخت ${bedNum} پذیرش شد (اشغال)`);
+    } else {
+      showToast(`✅ تخت ${bedNum} ترخیص شد (خالی)`);
+    }
+  }
+  
+  // render beds with full card touch (no inner button)
   function renderAllRows() {
     const container = document.getElementById('rowsContainer');
     if (!container) return;
     let html = '';
     for (const row of ROWS) {
       const { name, start, end } = row;
-      const bedNumbers = [];
-      for (let i = start; i <= end; i++) bedNumbers.push(i);
-      
       html += `<div class="er-row">
         <div class="row-title">
           <span>${name}</span>
-          <span class="row-badge">تخت‌های ${start} تا ${end}</span>
+          <span class="row-badge">تخت‌های ${start}-${end}</span>
         </div>
-        <div class="beds-grid" id="grid-${start}-${end}">`;
-      
-      for (let b of bedNumbers) {
-        const idx = b - 1;
-        const isOccupied = bedsOccupied[idx];
-        const statusText = isOccupied ? "اشغال" : "خالی";
-        const actionText = isOccupied ? "🔄 ترخیص" : "➕ پذیرش";
-        const additionalClass = isOccupied ? 'occupied' : 'empty';
+        <div class="beds-grid">`;
+      for (let b = start; b <= end; b++) {
+        const idx = b-1;
+        const occ = bedsOccupied[idx];
+        const statusText = occ ? "اشغال" : "خالی";
+        const cls = occ ? "occupied" : "empty";
         html += `
-          <div class="bed-card ${additionalClass}" data-bed-idx="${idx}">
+          <div class="bed-card ${cls}" data-bed-idx="${idx}">
             <div class="bed-number">${b}</div>
             <div class="bed-status">${statusText}</div>
-            <button class="bed-action" data-bed-idx="${idx}" data-action="${isOccupied ? 'discharge' : 'admit'}">${actionText}</button>
+            <div class="touch-hint">👆 لمس برای تغییر</div>
           </div>
         `;
       }
@@ -457,163 +416,161 @@
     updateCounters();
   }
   
-  // ---- Event delegation for bed actions ----
-  function attachBedEvents() {
-    if (!window._bedGlobalListener) {
+  // event delegation for bed-card clicks (whole tile)
+  function attachBedTouchEvents() {
+    if (!window._bedGlobalTouch) {
       document.body.addEventListener('click', (e) => {
-        const btn = e.target.closest('.bed-action');
-        if (!btn) return;
-        e.preventDefault();
-        const idxAttr = btn.getAttribute('data-bed-idx');
-        const action = btn.getAttribute('data-action');
-        if (idxAttr === null || action === null) return;
+        // find the closest bed-card element
+        const card = e.target.closest('.bed-card');
+        if (!card) return;
+        const idxAttr = card.getAttribute('data-bed-idx');
+        if (idxAttr === null) return;
         const bedIndex = parseInt(idxAttr, 10);
-        if (isNaN(bedIndex) || bedIndex < 0 || bedIndex >= TOTAL_BEDS) return;
-        
-        if (action === 'discharge' && bedsOccupied[bedIndex] === true) {
-          bedsOccupied[bedIndex] = false;
-          persistState();
-          renderAllRows();
-          showToast(`✅ تخت ${bedIndex+1} ترخیص شد و خالی است`, 1200);
-        } else if (action === 'admit' && bedsOccupied[bedIndex] === false) {
-          bedsOccupied[bedIndex] = true;
-          persistState();
-          renderAllRows();
-          showToast(`🟡 تخت ${bedIndex+1} اکنون اشغال است`, 1200);
+        if (!isNaN(bedIndex) && bedIndex >= 0 && bedIndex < TOTAL_BEDS) {
+          e.preventDefault();
+          toggleBed(bedIndex);
         }
       });
-      window._bedGlobalListener = true;
+      window._bedGlobalTouch = true;
     }
   }
   
-  // ========== SHARE WITHOUT EXTERNAL FILES : COPY/PASTE CLIPBOARD ==========
-  // Generate exportable JSON object from current state
-  function getExportObject() {
+  // ----- QR Handoff: encode current state as JSON -----
+  function getExportData() {
     return {
-      version: "1.1",
-      timestamp: new Date().toISOString(),
-      totalBeds: TOTAL_BEDS,
-      bedsOccupied: bedsOccupied.slice(),
-      summary: {
-        occupiedCount: bedsOccupied.filter(v => v === true).length,
-        emptyCount: TOTAL_BEDS - bedsOccupied.filter(v => v === true).length,
-      }
+      v: "2",
+      ts: Date.now(),
+      beds: bedsOccupied.slice()
     };
   }
   
-  // Copy current status to clipboard as compact JSON
-  async function copyStatusToClipboard() {
-    const exportData = getExportObject();
-    const jsonStr = JSON.stringify(exportData);
+  function generateQrCode() {
+    const exportObj = getExportData();
+    const jsonStr = JSON.stringify(exportObj);
+    const qrDiv = document.getElementById('qrcode');
+    qrDiv.innerHTML = "";
     try {
-      await navigator.clipboard.writeText(jsonStr);
-      showToast("📋 وضعیت تخت‌ها در کلیپ‌بورد کپی شد! برای شیفت بعد، دکمه «چسباندن» را بزنید.", 2500);
-      document.getElementById('clipboardStatusText').innerHTML = "✅ وضعیت در حافظه کپی شد. حالا در اپلیکیشن شیفت بعد «چسباندن» را بزنید.";
-      setTimeout(() => {
-        document.getElementById('clipboardStatusText').innerHTML = "وضعیت تخت‌ها را کپی کنید و برای شیفت بعد بچسبانید";
-      }, 5000);
-    } catch (err) {
-      console.error(err);
-      // Fallback for older browsers: show text selection
-      const textArea = document.createElement('textarea');
-      textArea.value = JSON.stringify(exportData);
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      showToast("📋 کپی شد (روش جایگزین). حالا می‌توانید بچسبانید.", 2000);
+      new QRCode(qrDiv, {
+        text: jsonStr,
+        width: 150,
+        height: 150,
+        colorDark: "#0b3b5f",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.L
+      });
+      document.getElementById('qrDisplayArea').style.display = "block";
+      document.getElementById('scannerArea').style.display = "none";
+      if (html5QrScanner) {
+        html5QrScanner.stop().catch(e=>console.warn);
+        html5QrScanner = null;
+      }
+      showToast("📱 کد QR ساخته شد. شیفت بعد اسکن کند.", 1800);
+    } catch(e) {
+      showToast("خطا در ساخت QR", 1200);
     }
   }
   
-  // Paste from clipboard and apply if valid
-  async function pasteStatusFromClipboard() {
+  function hideQrPanel() {
+    document.getElementById('qrDisplayArea').style.display = "none";
+    document.getElementById('qrcode').innerHTML = "";
+  }
+  
+  // QR Scanning
+  async function startScanner() {
+    document.getElementById('qrDisplayArea').style.display = "none";
+    const scannerDiv = document.getElementById('scannerArea');
+    scannerDiv.style.display = "block";
+    const readerElem = document.getElementById('reader');
+    readerElem.innerHTML = "";
+    
+    if (html5QrScanner) {
+      try { await html5QrScanner.stop(); } catch(e) {}
+      html5QrScanner = null;
+    }
+    
+    html5QrScanner = new Html5Qrcode("reader");
+    const qrCodeSuccessCallback = (decodedText) => {
+      try {
+        const data = JSON.parse(decodedText);
+        if (data.beds && Array.isArray(data.beds) && data.beds.length === TOTAL_BEDS) {
+          const valid = data.beds.every(item => typeof item === 'boolean');
+          if (valid) {
+            bedsOccupied = data.beds.slice();
+            persistState();
+            renderAllRows();
+            const occCount = bedsOccupied.filter(v=>v).length;
+            showToast(`✅ وضعیت شیفت قبل بارگذاری شد! ${occCount} تخت پر`, 2500);
+            if (html5QrScanner) {
+              html5QrScanner.stop().then(() => {
+                scannerDiv.style.display = "none";
+                html5QrScanner = null;
+              }).catch(e=>console.warn);
+            } else {
+              scannerDiv.style.display = "none";
+            }
+            return;
+          }
+        }
+        showToast("❌ QR نامعتبر: داده تخت‌ها صحیح نیست", 1800);
+      } catch (err) {
+        showToast("❌ QR نامعتبر", 1500);
+      }
+    };
+    
+    const config = { fps: 10, qrbox: { width: 240, height: 240 } };
     try {
-      const text = await navigator.clipboard.readText();
-      if (!text) {
-        showToast("❌ کلیپ‌بورد خالی است. ابتدا وضعیت را کپی کنید.", 2000);
-        return;
-      }
-      const parsed = JSON.parse(text);
-      // validation
-      if (!parsed.bedsOccupied || !Array.isArray(parsed.bedsOccupied) || parsed.bedsOccupied.length !== TOTAL_BEDS) {
-        throw new Error("Invalid bed data format");
-      }
-      const isValid = parsed.bedsOccupied.every(item => typeof item === 'boolean');
-      if (!isValid) throw new Error("داده باید true/false برای هر تخت باشد");
-      
-      // Apply imported state
-      bedsOccupied = parsed.bedsOccupied.slice();
-      persistState();
-      renderAllRows();
-      const occ = bedsOccupied.filter(v => v === true).length;
-      const empty = TOTAL_BEDS - occ;
-      const importTime = parsed.timestamp ? new Date(parsed.timestamp).toLocaleString('fa-IR') : 'زمان نامشخص';
-      showToast(`✅ وضعیت از شیفت قبل بارگذاری شد! ${occ} تخت پر، ${empty} تخت خالی (زمان: ${importTime})`, 3500);
-      document.getElementById('clipboardStatusText').innerHTML = `✅ وضعیت شیفت قبل (${importTime}) بارگذاری شد. اکنون مدیریت کنید.`;
-      setTimeout(() => {
-        document.getElementById('clipboardStatusText').innerHTML = "وضعیت تخت‌ها را کپی کنید و برای شیفت بعد بچسبانید";
-      }, 6000);
-    } catch (err) {
-      console.error(err);
-      showToast("❌ داده معتبری در کلیپ‌بورد یافت نشد. لطفاً فایل JSON یا متن کپی‌شده از این برنامه را بچسبانید.", 3000);
-      document.getElementById('clipboardStatusText').innerHTML = "❌ خطا: داده نامعتبر. دکمه «کپی وضعیت» را در شیفت قبل بزنید.";
-      setTimeout(() => {
-        document.getElementById('clipboardStatusText').innerHTML = "وضعیت تخت‌ها را کپی کنید و برای شیفت بعد بچسبانید";
-      }, 4000);
+      await html5QrScanner.start({ facingMode: "environment" }, config, qrCodeSuccessCallback);
+    } catch(err) {
+      showToast("دسترسی به دوربین ممکن نیست", 1800);
+      scannerDiv.style.display = "none";
+      html5QrScanner = null;
     }
   }
   
-  // Clear all beds (all empty)
+  function stopScanner() {
+    if (html5QrScanner) {
+      html5QrScanner.stop().catch(e=>console.warn);
+      html5QrScanner = null;
+    }
+    document.getElementById('scannerArea').style.display = "none";
+    const readerDiv = document.getElementById('reader');
+    if (readerDiv) readerDiv.innerHTML = "";
+  }
+  
+  // Clear all beds
   function setAllEmpty() {
-    if (confirm("⚠️ هشدار: تمام تخت‌ها خالی می‌شوند. بیماران ترخیص می‌شوند. ادامه می‌دهید؟")) {
+    if (confirm("⚠️ همه تخت‌ها خالی می‌شوند؟ ادامه می‌دهید")) {
       bedsOccupied.fill(false);
       persistState();
       renderAllRows();
-      showToast("🧹 همه تخت‌ها خالی شدند. وضعیت بازنشانی شد.", 1500);
+      showToast("🧹 همه تخت‌ها تخلیه شدند", 1400);
     }
   }
   
-  // ---- PWA Service Worker (for offline & install) ----
+  // Service Worker for PWA (offline)
   function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
-      const swCode = `
-        const CACHE_NAME = 'er-bed-pwa-v2';
-        const urlsToCache = ['./', './index.html'];
-        self.addEventListener('install', event => {
-          event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache)));
-          self.skipWaiting();
-        });
-        self.addEventListener('fetch', event => {
-          event.respondWith(caches.match(event.request).then(response => response || fetch(event.request)));
-        });
-      `;
+      const swCode = `const CACHE_NAME='er-bed-compact-v1';const urls=['./','./index.html'];self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(urls))));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
       const blob = new Blob([swCode], {type: 'application/javascript'});
       const swUrl = URL.createObjectURL(blob);
-      navigator.serviceWorker.register(swUrl).catch(err => console.warn('SW registration failed (non-critical):', err));
+      navigator.serviceWorker.register(swUrl).catch(e=>console.warn);
     }
   }
   
-  // ---- Initialize everything ----
+  // initialization
   function init() {
     loadState();
     persistState();
     renderAllRows();
-    attachBedEvents();
+    attachBedTouchEvents();
     
-    // Buttons
-    const copyBtn = document.getElementById('copyStatusBtn');
-    const pasteBtn = document.getElementById('pasteStatusBtn');
-    const clearBtn = document.getElementById('clearAllBtn');
-    if (copyBtn) copyBtn.addEventListener('click', copyStatusToClipboard);
-    if (pasteBtn) pasteBtn.addEventListener('click', pasteStatusFromClipboard);
-    if (clearBtn) clearBtn.addEventListener('click', setAllEmpty);
+    document.getElementById('generateQrBtn').addEventListener('click', generateQrCode);
+    document.getElementById('scanQrBtn').addEventListener('click', startScanner);
+    document.getElementById('clearAllBtn').addEventListener('click', setAllEmpty);
+    document.getElementById('hideQrBtn').addEventListener('click', hideQrPanel);
+    document.getElementById('stopScanBtn').addEventListener('click', stopScanner);
     
     registerServiceWorker();
-    
-    // check if there is pending data on load (optional)
-    if (window.location.search.includes('import_hint')) {
-      showToast('جهت تحویل شیفت، دکمه «چسباندن وضعیت» را بزنید.', 2000);
-    }
   }
   
   init();
