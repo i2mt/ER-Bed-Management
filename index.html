@@ -3,89 +3,57 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
-  <meta name="theme-color" content="#0b3b5f">
+  <meta name="theme-color" content="#0f172a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="مدیریت تخت">
-  <!-- App icons -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%230b3b5f'/%3E%3Ctext x='50' y='72' font-size='52' text-anchor='middle' fill='white' font-family='Arial, sans-serif'%3E🛏️%3C/text%3E%3C/svg%3E">
-  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Ccircle cx='90' cy='90' r='90' fill='%230b3b5f'/%3E%3Ctext x='90' y='126' font-size='90' text-anchor='middle' fill='white' font-family='Arial, sans-serif'%3E🛏️%3C/text%3E%3C/svg%3E">
-  <link rel="manifest" href="data:application/manifest+json,{
-    %22name%22:%22ER%20Bed%20Manager%22,
-    %22short_name%22:%22BedManager%22,
-    %22start_url%22:%22.%22,
-    %22display%22:%22standalone%22,
-    %22background_color%22:%22%23f4f7fc%22,
-    %22theme_color%22:%22%230b3b5f%22,
-    %22icons%22:[
-      {
-        %22src%22:%22data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Ccircle cx='96' cy='96' r='96' fill='%230b3b5f'/%3E%3Ctext x='96' y='136' font-size='96' text-anchor='middle' fill='white' font-family='Arial'%3E🛏️%3C/text%3E%3C/svg%3E%22,
-        %22sizes%22:%22192x192%22,
-        %22type%22:%22image/svg+xml%22,
-        %22purpose%22:%22any%22
-      },
-      {
-        %22src%22:%22data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Ccircle cx='256' cy='256' r='256' fill='%230b3b5f'/%3E%3Ctext x='256' y='380' font-size='280' text-anchor='middle' fill='white' font-family='Arial'%3E🛏️%3C/text%3E%3C/svg%3E%22,
-        %22sizes%22:%22512x512%22,
-        %22type%22:%22image/svg+xml%22,
-        %22purpose%22:%22maskable%22
-      }
-    ]
-  }">
   <title>مدیریت تخت اورژانس</title>
+  <!-- QR & WebRTC -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
     * {
+      margin: 0;
+      padding: 0;
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
     }
 
     body {
-      font-family: system-ui, 'Segoe UI', 'Vazirmatn', 'Roboto', sans-serif;
-      background: #eef2f7;
-      margin: 0;
-      padding: 0 12px 20px 12px;
-      color: #1e2a3e;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', 'Vazirmatn', 'Roboto', sans-serif;
+      background: #f1f5f9;
+      color: #0f172a;
       transition: background 0.2s, color 0.2s;
+      padding: 16px 12px 24px 12px;
     }
 
+    /* Dark mode */
     body.dark {
       background: #0f172a;
       color: #e2e8f0;
     }
-    body.dark .bed-card { background: #1e293b; box-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+    body.dark .card, body.dark .bed-card, body.dark .stats-card, body.dark .sync-card {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    body.dark .btn-outline {
+      background: #334155;
+      border-color: #475569;
+      color: #f1f5f9;
+    }
     body.dark .bed-card.occupied { background: #2d1a1a; border-top-color: #f87171; }
     body.dark .bed-card.empty { background: #1a2e1a; border-top-color: #4ade80; }
-    body.dark .bed-status.occupied { background: #7f1a1a; color: #fecaca; }
-    body.dark .empty .bed-status { background: #14532d; color: #bbf7d0; }
-    body.dark .er-row { background: #1e293b80; }
-    body.dark .btn { background: #334155; border-color: #475569; color: #f1f5f9; }
-    body.dark .btn-primary { background: #1e4a6e; color: white; }
-    body.dark .badge-stats { background: #1e293b; color: #cbd5e1; }
-    body.dark .qr-panel, body.dark .footer-note, body.dark .credit-line { background: #1e293bcc; color: #cbd5e1; }
+    body.dark .filter-btn.active { background: #3b82f6; border-color: #3b82f6; }
+    body.dark .credit-line { background: #1e293b; }
 
     .app-container {
-      max-width: 100%;
+      max-width: 700px;
       margin: 0 auto;
     }
 
-    /* stylish header */
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin: 12px 0 10px 0;
-      padding-bottom: 8px;
-      border-bottom: 2px solid #cbd5e1;
-    }
-    body.dark .header { border-bottom-color: #334155; }
-
+    /* Typography */
     h1 {
-      font-size: 1.4rem;
+      font-size: 1.6rem;
       font-weight: 700;
-      margin: 0;
       background: linear-gradient(135deg, #0b3b5f, #2c7da0);
       background-clip: text;
       -webkit-background-clip: text;
@@ -94,65 +62,126 @@
     }
     body.dark h1 {
       background: linear-gradient(135deg, #93c5fd, #6ee7b7);
-      background-clip: text;
-      -webkit-background-clip: text;
     }
 
-    .badge-stats {
+    /* Header row */
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .stats-badge {
       background: white;
-      border-radius: 48px;
-      padding: 5px 12px;
-      font-size: 0.75rem;
+      padding: 6px 16px;
+      border-radius: 60px;
       font-weight: 600;
+      font-size: 0.85rem;
+      display: flex;
+      gap: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    body.dark .stats-badge { background: #1e293b; }
+
+    /* Action buttons row */
+    .action-row {
       display: flex;
       gap: 12px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-
-    /* top action row: dark mode, undo, sync */
-    .top-actions {
-      display: flex;
-      gap: 8px;
-      justify-content: flex-end;
-      margin-bottom: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
     }
     .btn-icon {
       background: white;
-      border: 1px solid #cbd5e1;
-      border-radius: 32px;
-      padding: 6px 14px;
-      font-size: 0.75rem;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 40px;
       font-weight: 500;
+      font-size: 0.8rem;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
       transition: 0.08s linear;
+      border: 1px solid #e2e8f0;
     }
     .btn-icon:active { transform: scale(0.97); }
-    .btn-primary { background: #0b3b5f; border: none; color: white; }
-    .btn-secondary { background: #f8fafc; border: 1px solid #cbd5e1; }
+    .btn-primary {
+      background: #0b3b5f;
+      color: white;
+      border: none;
+    }
+    .btn-secondary {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+    }
+    body.dark .btn-secondary { background: #334155; border-color: #475569; color: #e2e8f0; }
 
-    /* filter row + clear all */
+    /* Sync card (modern glass) */
+    .sync-card {
+      background: white;
+      border-radius: 28px;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      border: 1px solid #e2e8f0;
+    }
+    .sync-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #475569;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+    .sync-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .qr-area {
+      margin-top: 14px;
+      text-align: center;
+    }
+    #qrcode img, #qrcode canvas {
+      max-width: 140px;
+      border-radius: 16px;
+      background: white;
+      padding: 8px;
+    }
+    #webrtcStatus {
+      font-size: 0.7rem;
+      margin-top: 10px;
+      color: #2c6e9e;
+    }
+    .scanner-container {
+      margin-top: 10px;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    /* Filter & Clear row */
     .filter-bar {
       display: flex;
-      flex-wrap: wrap;
-      align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      margin: 8px 0 12px 0;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
     }
     .filter-group {
       display: flex;
-      gap: 6px;
+      gap: 8px;
       flex-wrap: wrap;
     }
     .filter-btn {
       background: white;
       border: 1px solid #cbd5e1;
-      border-radius: 32px;
-      padding: 5px 12px;
-      font-size: 0.7rem;
+      border-radius: 40px;
+      padding: 6px 16px;
+      font-size: 0.75rem;
       font-weight: 500;
       cursor: pointer;
       transition: 0.05s;
@@ -162,181 +191,177 @@
       border-color: #0b3b5f;
       color: white;
     }
-    body.dark .filter-btn.active { background: #3b82f6; border-color: #3b82f6; }
-    .clear-btn {
+    .btn-clear {
       background: #b91c1c;
       border: none;
       color: white;
-      padding: 5px 14px;
-      border-radius: 32px;
-      font-size: 0.7rem;
+      padding: 6px 20px;
+      border-radius: 40px;
+      font-size: 0.75rem;
       font-weight: 500;
       cursor: pointer;
     }
-    .clear-btn:active { transform: scale(0.97); }
 
-    /* QR / WebRTC panel - more compact */
-    .qr-panel {
-      background: white;
-      border-radius: 20px;
-      padding: 8px 12px;
-      margin: 4px 0 14px;
-      text-align: center;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-    }
-    .sync-buttons {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    #qrcode { display: flex; justify-content: center; margin: 6px auto; }
-    #qrcode img, #qrcode canvas { max-width: 130px; border-radius: 12px; padding: 4px; background: white; }
-    .scanner-container { margin-top: 6px; border-radius: 16px; overflow: hidden; background: #00000010; }
-    #reader { width: 100%; min-height: 200px; }
-
-    /* bed rows */
-    .er-row {
-      margin-bottom: 20px;
-      background: #ffffffcc;
+    /* Bed rows */
+    .bed-row {
+      background: rgba(255,255,255,0.6);
       backdrop-filter: blur(2px);
-      border-radius: 24px;
-      padding: 8px 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+      border-radius: 28px;
+      padding: 12px 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
     }
-    .row-title {
-      padding: 0 8px 8px 8px;
+    .row-header {
+      padding: 0 6px 10px 6px;
       font-weight: 700;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       display: flex;
       align-items: baseline;
-      gap: 8px;
+      gap: 10px;
       border-right: 3px solid #0b3b5f;
       margin-right: 6px;
     }
     .beds-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
-      gap: 10px;
-      padding: 2px 6px;
+      grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+      gap: 12px;
     }
     .bed-card {
       background: white;
       border-radius: 20px;
-      padding: 8px 4px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      padding: 10px 4px;
       text-align: center;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-      border-top: 3px solid;
       cursor: pointer;
-      transition: 0.05s linear;
+      transition: 0.08s linear;
+      border-top: 3px solid;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
     .bed-card.occupied { background: #fff5f5; border-top-color: #dc2626; }
     .bed-card.empty { background: #f0fdf4; border-top-color: #22c55e; }
     .bed-card:active { transform: scale(0.97); }
-    .bed-number { font-weight: 800; font-size: 1.1rem; margin: 2px 0 0; }
-    .bed-status { font-size: 0.6rem; font-weight: 700; border-radius: 30px; padding: 2px 8px; margin: 6px 0 2px; background: rgba(0,0,0,0.05); }
-    .occupied .bed-status { color: #b91c1c; background: #fee2e2; }
-    .empty .bed-status { color: #15803d; background: #dcfce7; }
-
-    .footer-note {
-      margin-top: 18px;
-      text-align: center;
+    .bed-number {
+      font-size: 1.2rem;
+      font-weight: 800;
+    }
+    .bed-status {
       font-size: 0.6rem;
-      background: #f1f5f9;
-      border-radius: 28px;
-      padding: 8px;
+      font-weight: 700;
+      margin-top: 6px;
+      padding: 3px 8px;
+      border-radius: 30px;
+      display: inline-block;
+    }
+    .occupied .bed-status { background: #fee2e2; color: #b91c1c; }
+    .empty .bed-status { background: #dcfce7; color: #15803d; }
+
+    .footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 0.65rem;
+      background: white;
+      border-radius: 30px;
+      padding: 10px;
     }
     .credit-line {
       text-align: center;
       font-size: 0.6rem;
-      background: #f1f5f9;
-      border-radius: 28px;
-      padding: 5px 8px;
-      margin-top: 8px;
-      color: #334155;
+      background: white;
+      border-radius: 30px;
+      padding: 6px;
+      margin-top: 10px;
       direction: ltr;
     }
-    body.dark .credit-line { background: #1e293bcc; color: #94a3b8; }
-    .toast-msg {
+    .toast {
       position: fixed;
-      bottom: 20px;
+      bottom: 24px;
       left: 50%;
       transform: translateX(-50%);
       background: #1e293b;
       color: white;
-      padding: 6px 16px;
-      border-radius: 40px;
-      font-size: 0.7rem;
+      padding: 8px 20px;
+      border-radius: 60px;
+      font-size: 0.75rem;
       z-index: 1000;
       animation: fadeOut 2s ease forwards;
       pointer-events: none;
     }
-    @keyframes fadeOut { 0% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+    @keyframes fadeOut {
+      0% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      70% { opacity: 1; }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-10px); visibility: hidden; }
+    }
+
     @media (max-width: 480px) {
       .beds-grid { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px; }
+      .btn-icon { padding: 6px 14px; font-size: 0.7rem; }
     }
   </style>
 </head>
 <body>
 <div class="app-container">
-  <div class="header">
+  <!-- Header -->
+  <div class="header-row">
     <h1>🛏️ مدیریت تخت اورژانس</h1>
-    <div class="badge-stats"><span>🟢 <span id="emptyCount">0</span></span><span>🔴 <span id="occupiedCount">0</span></span></div>
+    <div class="stats-badge">
+      <span>🟢 <span id="emptyCount">0</span> خالی</span>
+      <span>🔴 <span id="occupiedCount">0</span> پر</span>
+    </div>
   </div>
 
-  <!-- top buttons: dark mode + undo + sync -->
-  <div class="top-actions">
+  <!-- Top actions: Dark mode + Undo -->
+  <div class="action-row">
     <button id="darkModeBtn" class="btn-icon btn-secondary">🌙 حالت شب</button>
-    <button id="undoBtn" class="btn-icon btn-secondary">↩️ بازگشت</button>
-    <button id="webrtcSyncBtn" class="btn-icon btn-primary">🔄 همگام‌سازی مستقیم</button>
+    <button id="undoBtn" class="btn-icon btn-secondary">↩️ واگرد</button>
   </div>
 
-  <!-- filter bar + clear all button -->
+  <!-- Sync card: modern, clear send/receive -->
+  <div class="sync-card">
+    <div class="sync-title">📲 تحویل شیفت بین دو دستگاه</div>
+    <div class="sync-buttons">
+      <button id="sendSyncBtn" class="btn-icon btn-primary">📤 ارسال وضعیت (QR)</button>
+      <button id="receiveSyncBtn" class="btn-icon btn-secondary">📥 دریافت وضعیت (اسکن)</button>
+      <button id="cancelSyncBtn" class="btn-icon btn-secondary" style="display: none;">❌ لغو</button>
+    </div>
+    <div id="qrDisplayArea" class="qr-area" style="display: none;">
+      <div id="qrcode"></div>
+      <button id="hideQrBtn" class="btn-icon btn-secondary" style="margin-top: 8px;">✖️ بستن</button>
+    </div>
+    <div id="scannerArea" style="display: none; margin-top: 10px;">
+      <div id="reader" class="scanner-container"></div>
+      <button id="stopScanBtn" class="btn-icon btn-secondary" style="margin-top: 8px;">❌ لغو اسکن</button>
+    </div>
+    <div id="webrtcStatus" style="font-size: 0.7rem; margin-top: 8px;"></div>
+  </div>
+
+  <!-- Filter + Clear all -->
   <div class="filter-bar">
     <div class="filter-group">
       <button id="filterAll" class="filter-btn active">همه</button>
       <button id="filterEmpty" class="filter-btn">🟢 فقط خالی</button>
       <button id="filterOccupied" class="filter-btn">🔴 فقط اشغال</button>
     </div>
-    <button id="clearAllBtn" class="clear-btn">🗑️ همه تخلیه</button>
+    <button id="clearAllBtn" class="btn-clear">🗑️ همه تخلیه</button>
   </div>
 
-  <!-- WebRTC sync panel (no legacy QR) -->
-  <div class="qr-panel" id="qrPanel">
-    <div class="sync-buttons">
-      <button id="cancelSyncBtn" class="btn-icon btn-secondary" style="display: none;">❌ لغو همگام‌سازی</button>
-    </div>
-    <div id="qrDisplayArea" style="margin-top: 6px; display: none;">
-      <div id="qrcode"></div>
-      <button id="hideQrBtn" class="btn-icon btn-secondary" style="margin-top: 4px;">✖️ بستن</button>
-    </div>
-    <div id="scannerArea" style="display: none; margin-top: 6px;">
-      <div id="reader" class="scanner-container"></div>
-      <button id="stopScanBtn" class="btn-icon btn-secondary" style="margin-top: 6px;">❌ لغو اسکن</button>
-    </div>
-    <div id="webrtcStatus" style="font-size: 0.65rem; margin-top: 6px; color: #2c6e9e;"></div>
-  </div>
-
+  <!-- Beds container -->
   <div id="rowsContainer"></div>
-  <div class="footer-note">✅ لمس هر تخت → پذیرش/ترخیص · فیلتر: خالی/اشغال · همگام‌سازی مستقیم: دو دستگاه بدون اینترنت</div>
+
+  <div class="footer">✅ برای تغییر وضعیت تخت، روی هر تخت ضربه بزنید</div>
   <div class="credit-line">Designed and developed by Mohammad Mahdi Taghavi</div>
 </div>
 
 <script>
   // ---------- STATE & HISTORY ----------
-  const STORAGE_KEY = 'er_bed_final';
+  const STORAGE_KEY = 'er_bed_modern';
   const TOTAL_BEDS = 42;
   let bedsOccupied = new Array(TOTAL_BEDS).fill(false);
   let historyStack = [];
   let currentFilter = 'all';
   
   const ROWS = [
-    { name: "🩺 ردیف اول", start: 1, end: 14 },
-    { name: "🩺 ردیف دوم", start: 15, end: 28 },
-    { name: "🩺 ردیف سوم", start: 29, end: 42 }
+    { name: "🩺 ردیف اول (۱-۱۴)", start: 1, end: 14 },
+    { name: "🩺 ردیف دوم (۱۵-۲۸)", start: 15, end: 28 },
+    { name: "🩺 ردیف سوم (۲۹-۴۲)", start: 29, end: 42 }
   ];
   
   function pushToHistory() {
@@ -352,7 +377,7 @@
     bedsOccupied = previous.slice();
     persistState();
     renderFiltered();
-    showToast("↩️ بازگشت به وضعیت قبل", 1200);
+    showToast("↩️ واگرد انجام شد", 1200);
     localStorage.setItem(STORAGE_KEY + '_history', JSON.stringify(historyStack));
   }
   
@@ -387,11 +412,11 @@
     document.getElementById('occupiedCount').innerText = occ;
   }
   
-  function showToast(msg, duration=1800) {
-    const old = document.querySelector('.toast-msg');
+  function showToast(msg, duration=2000) {
+    const old = document.querySelector('.toast');
     if (old) old.remove();
     const toast = document.createElement('div');
-    toast.className = 'toast-msg';
+    toast.className = 'toast';
     toast.innerText = msg;
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), duration);
@@ -423,7 +448,7 @@
         if (visible) bedsInRow.push({num:b, idx, occ});
       }
       if (bedsInRow.length === 0) continue;
-      html += `<div class="er-row"><div class="row-title"><span>${name}</span><span class="row-badge" style="background:#e2e8f0;border-radius:30px;padding:1px 8px;font-size:0.6rem;">تخت‌های ${start}-${end}</span></div><div class="beds-grid">`;
+      html += `<div class="bed-row"><div class="row-header"><span>${name}</span></div><div class="beds-grid">`;
       for (let bed of bedsInRow) {
         const cls = bed.occ ? "occupied" : "empty";
         const statusText = bed.occ ? "اشغال" : "خالی";
@@ -454,14 +479,15 @@
     localStorage.setItem('darkMode', document.body.classList.contains('dark'));
   }
   
-  // ---------- WEBRTC PEER-TO-PEER SYNC ----------
+  // ---------- WEBRTC PEER-TO-PEER (modern with STUN) ----------
   let peerConnection = null, dataChannel = null;
   const webrtcStatusDiv = document.getElementById('webrtcStatus');
+  const configuration = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
   
-  async function initiateWebRTCSync() {
-    if (peerConnection) { showToast("همگام‌سازی در حال انجام است"); return; }
-    webrtcStatusDiv.innerText = "🔵 ایجاد اتصال... QR را به دستگاه دیگر نشان دهید";
-    peerConnection = new RTCPeerConnection();
+  async function initiateSend() {
+    if (peerConnection) { showToast("همگام‌سازی قبلی هنوز فعال است، لغو کنید"); return; }
+    webrtcStatusDiv.innerText = "🔵 در حال آماده‌سازی اتصال...";
+    peerConnection = new RTCPeerConnection(configuration);
     dataChannel = peerConnection.createDataChannel("bedsync");
     setupDataChannelEvents(dataChannel);
     
@@ -474,13 +500,13 @@
       };
     });
     const sdpString = JSON.stringify({ type: peerConnection.localDescription.type, sdp: peerConnection.localDescription.sdp });
-    displayQRForData(sdpString, "offer");
+    displayQR(sdpString, "ارسال");
     document.getElementById('cancelSyncBtn').style.display = "inline-flex";
   }
   
   function setupDataChannelEvents(channel) {
     channel.onopen = () => {
-      webrtcStatusDiv.innerText = "✅ متصل! ارسال وضعیت...";
+      webrtcStatusDiv.innerText = "✅ متصل! ارسال وضعیت فعلی...";
       channel.send(JSON.stringify({ beds: bedsOccupied.slice() }));
     };
     channel.onmessage = (event) => {
@@ -491,71 +517,67 @@
           bedsOccupied = data.beds.slice();
           persistState();
           renderFiltered();
-          showToast("🔄 وضعیت از دستگاه دیگر به‌روز شد", 2000);
+          showToast("🔄 وضعیت از دستگاه دیگر دریافت شد", 2000);
           closeWebRTC();
         } else showToast("داده نامعتبر");
-      } catch(e) { showToast("خطا در دریافت"); }
+      } catch(e) { showToast("خطا در دریافت داده"); }
     };
     channel.onclose = () => { webrtcStatusDiv.innerText = "❌ اتصال بسته شد"; closeWebRTC(); };
+    channel.onerror = () => { webrtcStatusDiv.innerText = "خطا در ارتباط"; closeWebRTC(); };
   }
   
-  async function answerWebRTC(offerSdpJson) {
-    if (peerConnection) return;
-    webrtcStatusDiv.innerText = "🟢 در حال پاسخ...";
-    peerConnection = new RTCPeerConnection();
-    peerConnection.ondatachannel = (event) => {
-      dataChannel = event.channel;
-      setupDataChannelEvents(dataChannel);
+  async function initiateReceive() {
+    if (peerConnection) { showToast("لطفاً همگام‌سازی جاری را لغو کنید"); return; }
+    webrtcStatusDiv.innerText = "🟢 آماده اسکن QR از دستگاه دیگر...";
+    // show scanner
+    document.getElementById('scannerArea').style.display = "block";
+    document.getElementById('qrDisplayArea').style.display = "none";
+    const readerDiv = document.getElementById('reader');
+    readerDiv.innerHTML = "";
+    const html5Scanner = new Html5Qrcode("reader");
+    const onSuccess = async (decodedText) => {
+      try {
+        const data = JSON.parse(decodedText);
+        if (data.type && data.sdp && data.type === "offer") {
+          await html5Scanner.stop();
+          document.getElementById('scannerArea').style.display = "none";
+          webrtcStatusDiv.innerText = "🟣 در حال اتصال...";
+          peerConnection = new RTCPeerConnection(configuration);
+          peerConnection.ondatachannel = (event) => {
+            dataChannel = event.channel;
+            setupDataChannelEvents(dataChannel);
+          };
+          await peerConnection.setRemoteDescription(new RTCSessionDescription({ type: data.type, sdp: data.sdp }));
+          const answer = await peerConnection.createAnswer();
+          await peerConnection.setLocalDescription(answer);
+          await new Promise(resolve => {
+            if (peerConnection.iceGatheringState === 'complete') resolve();
+            else peerConnection.onicegatheringstatechange = () => {
+              if (peerConnection.iceGatheringState === 'complete') resolve();
+            };
+          });
+          const answerSdp = JSON.stringify({ type: peerConnection.localDescription.type, sdp: peerConnection.localDescription.sdp });
+          displayQR(answerSdp, "پاسخ");
+          document.getElementById('cancelSyncBtn').style.display = "inline-flex";
+        } else {
+          showToast("QR نامعتبر: باید از دکمه ارسال دستگاه دیگر گرفته شود");
+          await html5Scanner.stop();
+          document.getElementById('scannerArea').style.display = "none";
+        }
+      } catch(e) { showToast("QR نامعتبر"); await html5Scanner.stop(); document.getElementById('scannerArea').style.display = "none"; }
     };
-    const offer = JSON.parse(offerSdpJson);
-    await peerConnection.setRemoteDescription(new RTCSessionDescription({ type: offer.type, sdp: offer.sdp }));
-    const answer = await peerConnection.createAnswer();
-    await peerConnection.setLocalDescription(answer);
-    await new Promise(resolve => {
-      if (peerConnection.iceGatheringState === 'complete') resolve();
-      else peerConnection.onicegatheringstatechange = () => {
-        if (peerConnection.iceGatheringState === 'complete') resolve();
-      };
-    });
-    const answerSdp = JSON.stringify({ type: peerConnection.localDescription.type, sdp: peerConnection.localDescription.sdp });
-    displayQRForData(answerSdp, "answer");
-    document.getElementById('cancelSyncBtn').style.display = "inline-flex";
+    await html5Scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, onSuccess);
+    window._activeScanner = html5Scanner;
+    document.getElementById('stopScanBtn').onclick = () => { html5Scanner.stop(); document.getElementById('scannerArea').style.display = "none"; };
   }
   
-  function displayQRForData(dataStr, type) {
+  function displayQR(dataStr, label) {
     const qrDiv = document.getElementById('qrcode');
     qrDiv.innerHTML = "";
     new QRCode(qrDiv, { text: dataStr, width: 140, height: 140 });
     document.getElementById('qrDisplayArea').style.display = "block";
     document.getElementById('scannerArea').style.display = "none";
-    webrtcStatusDiv.innerText = type === "offer" ? "📷 دستگاه دیگر این QR را اسکن کند" : "📷 QR پاسخ را اسکن کنید";
-  }
-  
-  async function scanWebRTCQR() {
-    if (peerConnection) { showToast("همگام‌سازی فعال است، ابتدا لغو کنید"); return; }
-    document.getElementById('qrDisplayArea').style.display = "none";
-    const scannerDiv = document.getElementById('scannerArea');
-    scannerDiv.style.display = "block";
-    const readerElem = document.getElementById('reader');
-    readerElem.innerHTML = "";
-    const scanner = new Html5Qrcode("reader");
-    const onSuccess = async (decodedText) => {
-      try {
-        const data = JSON.parse(decodedText);
-        if (data.type && data.sdp) {
-          if (data.type === "offer") await answerWebRTC(decodedText);
-          else if (data.type === "answer" && peerConnection) {
-            await peerConnection.setRemoteDescription(new RTCSessionDescription({ type: data.type, sdp: data.sdp }));
-            webrtcStatusDiv.innerText = "✅ اتصال برقرار شد، در حال دریافت...";
-          } else throw new Error();
-          await scanner.stop();
-          scannerDiv.style.display = "none";
-        } else showToast("QR نامعتبر");
-      } catch(e) { showToast("QR نامعتبر"); }
-    };
-    await scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 200 }, onSuccess);
-    window._tempScanner = scanner;
-    document.getElementById('stopScanBtn').onclick = () => { scanner.stop(); scannerDiv.style.display = "none"; };
+    webrtcStatusDiv.innerText = `📷 کد ${label} ساخته شد. دستگاه دیگر آن را اسکن کند.`;
   }
   
   function closeWebRTC() {
@@ -566,11 +588,17 @@
     document.getElementById('qrDisplayArea').style.display = "none";
     document.getElementById('scannerArea').style.display = "none";
     webrtcStatusDiv.innerText = "";
+    if (window._activeScanner) {
+      window._activeScanner.stop().catch(e=>console.log);
+      window._activeScanner = null;
+    }
   }
-  function cancelWebRTC() { closeWebRTC(); showToast("همگام‌سازی لغو شد"); }
   
+  function cancelSync() { closeWebRTC(); showToast("همگام‌سازی لغو شد"); }
+  
+  // Clear all
   function setAllEmpty() {
-    if (confirm("همه تخت‌ها خالی شوند؟")) {
+    if (confirm("همه تخت‌ها خالی می‌شوند. ادامه؟")) {
       pushToHistory();
       bedsOccupied.fill(false);
       persistState();
@@ -579,7 +607,8 @@
     }
   }
   
-  function attachGlobalBedTap() {
+  // Event delegation for bed taps
+  function attachBedEvents() {
     document.body.addEventListener('click', (e) => {
       const card = e.target.closest('.bed-card');
       if (!card) return;
@@ -590,25 +619,20 @@
   
   function init() {
     loadState();
-    persistState();
     renderFiltered();
-    attachGlobalBedTap();
+    attachBedEvents();
+    // UI buttons
     document.getElementById('undoBtn').onclick = undo;
     document.getElementById('darkModeBtn').onclick = toggleDarkMode;
-    document.getElementById('webrtcSyncBtn').onclick = initiateWebRTCSync;
+    document.getElementById('sendSyncBtn').onclick = initiateSend;
+    document.getElementById('receiveSyncBtn').onclick = initiateReceive;
     document.getElementById('clearAllBtn').onclick = setAllEmpty;
     document.getElementById('filterAll').onclick = () => setFilter('all');
     document.getElementById('filterEmpty').onclick = () => setFilter('empty');
     document.getElementById('filterOccupied').onclick = () => setFilter('occupied');
-    document.getElementById('hideQrBtn').onclick = () => document.getElementById('qrDisplayArea').style.display = "none";
-    document.getElementById('cancelSyncBtn').onclick = cancelWebRTC;
-    // add scan button dynamically
-    const scanBtn = document.createElement('button');
-    scanBtn.innerText = "📷 اسکن QR همگام‌سازی";
-    scanBtn.className = "btn-icon btn-secondary";
-    scanBtn.onclick = scanWebRTCQR;
-    document.querySelector('.sync-buttons').appendChild(scanBtn);
-    document.getElementById('stopScanBtn').onclick = () => { if(window._tempScanner) window._tempScanner.stop(); document.getElementById('scannerArea').style.display = "none"; };
+    document.getElementById('hideQrBtn').onclick = () => { document.getElementById('qrDisplayArea').style.display = "none"; closeWebRTC(); };
+    document.getElementById('cancelSyncBtn').onclick = cancelSync;
+    document.getElementById('stopScanBtn').onclick = () => { if(window._activeScanner) window._activeScanner.stop(); document.getElementById('scannerArea').style.display = "none"; };
     if (localStorage.getItem('darkMode') === 'true') toggleDarkMode();
   }
   init();
