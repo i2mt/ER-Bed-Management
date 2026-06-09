@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
   <meta name="theme-color" content="#0b3b5f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="ER Bed Manager">
+  <meta name="apple-mobile-web-app-title" content="مدیریت تخت‌های اورژانس">
   <link rel="manifest" href="data:application/manifest+json,{
-    %22name%22:%22ER%20Bed%20Manager%22,
-    %22short_name%22:%22BedManager%22,
+    %22name%22:%22مدیریت%20تخت%20اورژانس%22,
+    %22short_name%22:%22تخت‌ها%22,
     %22start_url%22:%22.%22,
     %22display%22:%22standalone%22,
     %22background_color%22:%22%23f4f7fc%22,
@@ -27,7 +27,7 @@
       }
     ]
   }">
-  <title>ER Bed Management - Two Way Share</title>
+  <title>مدیریت تخت اورژانس</title>
   <style>
     * {
       box-sizing: border-box;
@@ -35,7 +35,7 @@
     }
 
     body {
-      font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+      font-family: system-ui, 'Segoe UI', 'Tahoma', 'Vazirmatn', 'Roboto', sans-serif;
       background: #eef2f7;
       margin: 0;
       padding: 0 12px 24px 12px;
@@ -47,6 +47,7 @@
       margin: 0 auto;
     }
 
+    /* Header */
     .header {
       display: flex;
       justify-content: space-between;
@@ -59,7 +60,7 @@
     }
 
     h1 {
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       font-weight: 600;
       margin: 0;
       background: linear-gradient(135deg, #0b3b5f, #1b6b8f);
@@ -80,18 +81,13 @@
       gap: 12px;
     }
 
-    .occupied-badge {
-      color: #b91c1c;
-    }
-    .empty-badge {
-      color: #15803d;
-    }
-
+    /* Action Buttons */
     .action-buttons {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
-      margin: 12px 0 8px 0;
+      margin: 12px 0 12px 0;
+      justify-content: center;
     }
 
     .btn {
@@ -109,6 +105,7 @@
       transition: 0.1s ease;
       background-color: #f8fafc;
       border: 1px solid #cbd5e1;
+      font-family: inherit;
     }
 
     .btn-primary {
@@ -134,17 +131,24 @@
       transform: scale(0.97);
     }
 
-    .btn-outline:active {
-      background: #e2e8f0;
+    .btn-warning {
+      background: #b91c1c;
+      border: none;
+      color: white;
+    }
+
+    .btn-warning:active {
+      background: #991b1b;
       transform: scale(0.97);
     }
 
-    .import-area {
-      background: #f8fafc;
+    /* Clipboard status row */
+    .clipboard-area {
+      background: #f1f5f9;
       border-radius: 20px;
-      padding: 8px 12px;
-      margin: 8px 0 12px 0;
-      border: 1px dashed #94a3b8;
+      padding: 10px 16px;
+      margin: 8px 0 16px;
+      border: 1px solid #cbd5e1;
       font-size: 0.8rem;
       display: flex;
       align-items: center;
@@ -153,12 +157,14 @@
       gap: 10px;
     }
 
-    .import-status {
+    .clipboard-status {
       font-size: 0.75rem;
-      color: #475569;
+      color: #2c3e66;
       flex: 1;
+      word-break: break-word;
     }
 
+    /* Toast notification */
     .toast-msg {
       position: fixed;
       bottom: 20px;
@@ -170,10 +176,11 @@
       border-radius: 40px;
       font-size: 0.8rem;
       z-index: 1000;
-      animation: fadeOut 2s ease forwards;
+      animation: fadeOut 2.5s ease forwards;
       pointer-events: none;
       white-space: nowrap;
       font-weight: 500;
+      font-family: inherit;
     }
 
     @keyframes fadeOut {
@@ -182,23 +189,25 @@
       100% { opacity: 0; transform: translateX(-50%) translateY(-10px); visibility: hidden; }
     }
 
+    /* Row sections */
     .er-row {
       margin-bottom: 28px;
       background: #ffffffcc;
       backdrop-filter: blur(2px);
       border-radius: 28px;
-      padding: 14px 0 12px 0;
+      padding: 12px 10px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
     }
 
     .row-title {
-      padding: 0 12px 8px 16px;
+      padding: 0 8px 12px 8px;
       font-weight: 700;
-      font-size: 1.1rem;
+      font-size: 1rem;
       display: flex;
       align-items: baseline;
       gap: 12px;
-      letter-spacing: -0.2px;
+      border-right: 4px solid #0b3b5f;
+      margin-right: 6px;
     }
 
     .row-badge {
@@ -210,60 +219,51 @@
       color: #334155;
     }
 
-    .beds-scroll {
-      overflow-x: auto;
-      overflow-y: hidden;
-      white-space: nowrap;
-      scrollbar-width: thin;
-      padding: 4px 0 8px 0;
-      -webkit-overflow-scrolling: touch;
-    }
-
+    /* Vertical grid: multiple beds per row, scroll only vertically */
     .beds-grid {
-      display: inline-flex;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
       gap: 12px;
-      padding: 0 16px;
+      padding: 6px 4px;
     }
 
+    /* Bed tile */
     .bed-card {
-      width: 100px;
       background: white;
-      border-radius: 24px;
-      padding: 10px 6px 10px 6px;
-      display: inline-flex;
+      border-radius: 20px;
+      padding: 8px 4px;
+      display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-      transition: all 0.08s linear;
-      border-left: 4px solid;
-      cursor: default;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      transition: 0.05s linear;
+      border-top: 3px solid;
+      cursor: pointer;
     }
 
     .bed-card.occupied {
       background: #fff5f5;
-      border-left-color: #dc2626;
+      border-top-color: #dc2626;
     }
     .bed-card.empty {
       background: #f0fdf4;
-      border-left-color: #22c55e;
+      border-top-color: #22c55e;
     }
 
     .bed-number {
       font-weight: 800;
-      font-size: 1.35rem;
+      font-size: 1.25rem;
       margin: 4px 0 2px;
       color: #0f172a;
     }
 
     .bed-status {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
       border-radius: 40px;
-      padding: 2px 10px;
-      margin: 6px 0 8px;
+      padding: 2px 8px;
+      margin: 4px 0 6px;
       background: rgba(0,0,0,0.05);
     }
 
@@ -279,10 +279,10 @@
     .bed-action {
       width: 100%;
       border: none;
-      padding: 8px 0;
-      border-radius: 60px;
+      padding: 6px 0;
+      border-radius: 40px;
       font-weight: 600;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       margin-top: 4px;
       transition: 0.05s linear;
       cursor: pointer;
@@ -293,7 +293,6 @@
     .occupied .bed-action {
       background: #ef4444;
       color: white;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
     }
     .empty .bed-action {
       background: #22c55e;
@@ -306,29 +305,31 @@
     }
 
     .footer-note {
-      margin-top: 24px;
+      margin-top: 20px;
       text-align: center;
       font-size: 0.7rem;
       color: #475569;
       background: #f1f5f9;
       border-radius: 30px;
-      padding: 8px;
+      padding: 10px;
     }
 
-    @media (max-width: 480px) {
-      .bed-card {
-        width: 88px;
-        padding: 8px 4px;
+    /* Responsive: larger screens show more beds */
+    @media (min-width: 500px) {
+      .beds-grid {
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        gap: 14px;
       }
-      .bed-number {
-        font-size: 1.2rem;
+    }
+
+    @media (max-width: 420px) {
+      .beds-grid {
+        grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+        gap: 8px;
       }
       .btn {
-        padding: 6px 10px;
-        font-size: 0.75rem;
-      }
-      .badge-stats {
-        font-size: 0.75rem;
+        padding: 6px 12px;
+        font-size: 0.7rem;
       }
     }
   </style>
@@ -336,48 +337,49 @@
 <body>
 <div class="app-container">
   <div class="header">
-    <h1>🛏️ ER BedFlow</h1>
+    <h1>🛏️ مدیریت تخت اورژانس</h1>
     <div class="badge-stats">
-      <span>🟢 <span id="emptyCount">0</span> empty</span>
-      <span>🔴 <span id="occupiedCount">0</span> occupied</span>
+      <span>🟢 <span id="emptyCount">0</span> خالی</span>
+      <span>🔴 <span id="occupiedCount">0</span> پر</span>
     </div>
   </div>
-  
+
+  <!-- Clipboard sharing without external files -->
+  <div class="clipboard-area">
+    <span>📋 <strong>تحویل شیفت:</strong></span>
+    <span class="clipboard-status" id="clipboardStatusText">وضعیت تخت‌ها را کپی کنید و برای شیفت بعد بچسبانید</span>
+  </div>
+
   <div class="action-buttons">
-    <button id="shareBtn" class="btn btn-primary">📤 Send to next shift</button>
-    <button id="receiveBtn" class="btn btn-success">📥 Receive from previous shift</button>
-    <button id="clearAllBtn" class="btn btn-outline">🗑️ All empty</button>
+    <button id="copyStatusBtn" class="btn btn-primary">📋 کپی وضعیت تخت‌ها</button>
+    <button id="pasteStatusBtn" class="btn btn-success">📥 چسباندن وضعیت</button>
+    <button id="clearAllBtn" class="btn btn-warning">🗑️ همه تخلیه</button>
   </div>
 
-  <!-- hidden file input for receiving shared data -->
-  <input type="file" id="importFileInput" accept=".json,text/plain,application/json" style="display: none;" />
-
-  <div class="import-area">
-    <span>📋 <strong>Shift handoff:</strong></span>
-    <span class="import-status" id="importStatusText">Tap "Send" to export, "Receive" to load previous shift's data</span>
-  </div>
-
+  <!-- dynamic rows (3 rows, each with responsive grid) -->
   <div id="rowsContainer"></div>
+
   <div class="footer-note">
-    👆 Tap <strong>Admit</strong> to occupy empty bed · <strong>Discharge</strong> frees bed.<br>
-    📤 <strong>Send</strong> = share current bed status · 📥 <strong>Receive</strong> = load data from previous shift
+    ✅ هر تخت را لمس کنید → پذیرش / ترخیص<br>
+    📋 «کپی وضعیت» را بزنید، سپس در اپلیکیشن شیفت بعد «چسباندن وضعیت» را بزنید.<br>
+    🧹 دکمه «همه تخلیه» تمام تخت‌ها را خالی می‌کند.
   </div>
 </div>
 
 <script>
-  // ---------- STATE MANAGEMENT ----------
-  const STORAGE_KEY = 'er_bed_manager_state';
+  // ---------- STATE ----------
+  const STORAGE_KEY = 'er_bed_manager_persian';
   const TOTAL_BEDS = 42;
-  
   let bedsOccupied = new Array(TOTAL_BEDS).fill(false);
   
+  // Rows definition (Persian labels)
   const ROWS = [
-    { name: '🩺 Row 1', start: 1, end: 14 },
-    { name: '🩺 Row 2', start: 15, end: 28 },
-    { name: '🩺 Row 3', start: 29, end: 42 }
+    { name: "🩺 ردیف اول (سمت چپ)", start: 1, end: 14 },
+    { name: "🩺 ردیف دوم (وسط)", start: 15, end: 28 },
+    { name: "🩺 ردیف سوم (سمت راست)", start: 29, end: 42 }
   ];
   
-  // Helper: load from localStorage
+  // ---- Load / Save ----
   function loadState() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
@@ -389,11 +391,11 @@
         }
       } catch(e) { console.warn(e); }
     }
-    // Default: realistic demo (14 occupied beds)
-    const defaultOccupied = [1,3,5,8,12,16,19,22,25,30,34,37,40,42];
+    // Default demo: 14 occupied beds mixed
+    const demoOccupied = [1,3,5,8,12,16,19,22,25,30,34,37,40,42];
     bedsOccupied.fill(false);
-    defaultOccupied.forEach(bedNum => {
-      if (bedNum >= 1 && bedNum <= TOTAL_BEDS) bedsOccupied[bedNum-1] = true;
+    demoOccupied.forEach(b => {
+      if (b >=1 && b <= TOTAL_BEDS) bedsOccupied[b-1] = true;
     });
   }
   
@@ -409,8 +411,8 @@
   }
   
   function showToast(message, duration = 2200) {
-    const existingToast = document.querySelector('.toast-msg');
-    if (existingToast) existingToast.remove();
+    const existing = document.querySelector('.toast-msg');
+    if (existing) existing.remove();
     const toast = document.createElement('div');
     toast.className = 'toast-msg';
     toast.innerText = message;
@@ -418,7 +420,7 @@
     setTimeout(() => toast.remove(), duration);
   }
   
-  // render all beds
+  // ---- Render all beds in vertical grid layout (no horizontal scroll) ----
   function renderAllRows() {
     const container = document.getElementById('rowsContainer');
     if (!container) return;
@@ -431,16 +433,15 @@
       html += `<div class="er-row">
         <div class="row-title">
           <span>${name}</span>
-          <span class="row-badge">beds ${start}–${end}</span>
+          <span class="row-badge">تخت‌های ${start} تا ${end}</span>
         </div>
-        <div class="beds-scroll">
-          <div class="beds-grid">`;
+        <div class="beds-grid" id="grid-${start}-${end}">`;
       
       for (let b of bedNumbers) {
         const idx = b - 1;
         const isOccupied = bedsOccupied[idx];
-        const statusText = isOccupied ? 'OCCUPIED' : 'EMPTY';
-        const actionText = isOccupied ? '⚕️ DISCHARGE' : '➕ ADMIT';
+        const statusText = isOccupied ? "اشغال" : "خالی";
+        const actionText = isOccupied ? "🔄 ترخیص" : "➕ پذیرش";
         const additionalClass = isOccupied ? 'occupied' : 'empty';
         html += `
           <div class="bed-card ${additionalClass}" data-bed-idx="${idx}">
@@ -450,178 +451,133 @@
           </div>
         `;
       }
-      html += `</div></div></div>`;
+      html += `</div></div>`;
     }
     container.innerHTML = html;
     updateCounters();
   }
   
-  // event delegation for bed actions (admit/discharge)
-  function attachBedEventDelegation() {
-    if (!window._bedListenerAttached) {
+  // ---- Event delegation for bed actions ----
+  function attachBedEvents() {
+    if (!window._bedGlobalListener) {
       document.body.addEventListener('click', (e) => {
         const btn = e.target.closest('.bed-action');
         if (!btn) return;
         e.preventDefault();
-        const bedIdxAttr = btn.getAttribute('data-bed-idx');
+        const idxAttr = btn.getAttribute('data-bed-idx');
         const action = btn.getAttribute('data-action');
-        if (bedIdxAttr === null || action === null) return;
-        const bedIndex = parseInt(bedIdxAttr, 10);
+        if (idxAttr === null || action === null) return;
+        const bedIndex = parseInt(idxAttr, 10);
         if (isNaN(bedIndex) || bedIndex < 0 || bedIndex >= TOTAL_BEDS) return;
         
         if (action === 'discharge' && bedsOccupied[bedIndex] === true) {
           bedsOccupied[bedIndex] = false;
           persistState();
           renderAllRows();
-          showToast(`✅ Bed ${bedIndex+1} discharged & now empty`, 1200);
+          showToast(`✅ تخت ${bedIndex+1} ترخیص شد و خالی است`, 1200);
         } else if (action === 'admit' && bedsOccupied[bedIndex] === false) {
           bedsOccupied[bedIndex] = true;
           persistState();
           renderAllRows();
-          showToast(`🟡 Bed ${bedIndex+1} now occupied`, 1200);
+          showToast(`🟡 تخت ${bedIndex+1} اکنون اشغال است`, 1200);
         }
       });
-      window._bedListenerAttached = true;
+      window._bedGlobalListener = true;
     }
   }
   
-  // ---- SHARE: EXPORT current state to next shift (send) ----
-  async function shareToNextShift() {
-    const exportData = {
-      version: "1.0",
+  // ========== SHARE WITHOUT EXTERNAL FILES : COPY/PASTE CLIPBOARD ==========
+  // Generate exportable JSON object from current state
+  function getExportObject() {
+    return {
+      version: "1.1",
       timestamp: new Date().toISOString(),
       totalBeds: TOTAL_BEDS,
-      bedsOccupied: bedsOccupied.slice(), // copy array
+      bedsOccupied: bedsOccupied.slice(),
       summary: {
         occupiedCount: bedsOccupied.filter(v => v === true).length,
         emptyCount: TOTAL_BEDS - bedsOccupied.filter(v => v === true).length,
-        occupiedBedsList: bedsOccupied.map((occ, idx) => occ ? idx+1 : null).filter(v => v !== null),
-        emptyBedsList: bedsOccupied.map((occ, idx) => !occ ? idx+1 : null).filter(v => v !== null)
       }
     };
-    const jsonStr = JSON.stringify(exportData, null, 2);
-    const shareBlob = new Blob([jsonStr], { type: 'application/json' });
-    const file = new File([shareBlob], `er_bed_status_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.json`, { type: 'application/json' });
-    
-    // Try Web Share API with file (preferred)
-    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-      try {
-        await navigator.share({
-          title: 'ER Bed Status - Next Shift',
-          text: `Bed status for next shift: ${exportData.summary.occupiedCount} occupied, ${exportData.summary.emptyCount} empty. Import this file in the app.`,
-          files: [file]
-        });
-        showToast('📤 Status shared successfully!', 1500);
+  }
+  
+  // Copy current status to clipboard as compact JSON
+  async function copyStatusToClipboard() {
+    const exportData = getExportObject();
+    const jsonStr = JSON.stringify(exportData);
+    try {
+      await navigator.clipboard.writeText(jsonStr);
+      showToast("📋 وضعیت تخت‌ها در کلیپ‌بورد کپی شد! برای شیفت بعد، دکمه «چسباندن» را بزنید.", 2500);
+      document.getElementById('clipboardStatusText').innerHTML = "✅ وضعیت در حافظه کپی شد. حالا در اپلیکیشن شیفت بعد «چسباندن» را بزنید.";
+      setTimeout(() => {
+        document.getElementById('clipboardStatusText').innerHTML = "وضعیت تخت‌ها را کپی کنید و برای شیفت بعد بچسبانید";
+      }, 5000);
+    } catch (err) {
+      console.error(err);
+      // Fallback for older browsers: show text selection
+      const textArea = document.createElement('textarea');
+      textArea.value = JSON.stringify(exportData);
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showToast("📋 کپی شد (روش جایگزین). حالا می‌توانید بچسبانید.", 2000);
+    }
+  }
+  
+  // Paste from clipboard and apply if valid
+  async function pasteStatusFromClipboard() {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (!text) {
+        showToast("❌ کلیپ‌بورد خالی است. ابتدا وضعیت را کپی کنید.", 2000);
         return;
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          console.warn('Share with file failed, fallback to text', err);
-        } else {
-          return;
-        }
       }
-    }
-    
-    // Fallback: share as text + advise to copy
-    const fallbackText = `ER BED HANDOFF\n${exportData.summary.occupiedCount} occupied, ${exportData.summary.emptyCount} empty\nOccupied beds: ${exportData.summary.occupiedBedsList.join(', ') || 'none'}\nEmpty beds: ${exportData.summary.emptyBedsList.join(', ') || 'none'}\n\n--- FULL DATA (save as .json for import) ---\n${jsonStr}`;
-    
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'ER Bed Status',
-          text: fallbackText
-        });
-        showToast('📤 Shared via text', 1500);
-      } catch (err) {
-        copyToClipboardFallback(fallbackText);
+      const parsed = JSON.parse(text);
+      // validation
+      if (!parsed.bedsOccupied || !Array.isArray(parsed.bedsOccupied) || parsed.bedsOccupied.length !== TOTAL_BEDS) {
+        throw new Error("Invalid bed data format");
       }
-    } else {
-      copyToClipboardFallback(fallbackText);
-    }
-  }
-  
-  function copyToClipboardFallback(text) {
-    navigator.clipboard.writeText(text).then(() => {
-      showToast('📋 Status copied to clipboard! Share manually with next shift.', 2500);
-    }).catch(() => {
-      prompt('⚠️ Copy this complete status and send to next shift:', text);
-    });
-  }
-  
-  // ---- RECEIVE: import data from previous shift via file picker ----
-  function receiveFromPreviousShift() {
-    const fileInput = document.getElementById('importFileInput');
-    if (!fileInput) return;
-    fileInput.value = ''; // reset
-    fileInput.click();
-    
-    fileInput.onchange = (event) => {
-      const file = event.target.files[0];
-      if (!file) return;
+      const isValid = parsed.bedsOccupied.every(item => typeof item === 'boolean');
+      if (!isValid) throw new Error("داده باید true/false برای هر تخت باشد");
       
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const content = e.target.result;
-          const importedData = JSON.parse(content);
-          
-          // validation
-          if (!importedData.bedsOccupied || !Array.isArray(importedData.bedsOccupied) || importedData.bedsOccupied.length !== TOTAL_BEDS) {
-            throw new Error('Invalid bed data format');
-          }
-          // additional validation: ensure boolean array
-          const valid = importedData.bedsOccupied.every(item => typeof item === 'boolean');
-          if (!valid) throw new Error('Data must contain true/false for each bed');
-          
-          // apply imported state
-          bedsOccupied = importedData.bedsOccupied.slice();
-          persistState();
-          renderAllRows();
-          
-          const occCount = bedsOccupied.filter(v => v === true).length;
-          const emptyCount = TOTAL_BEDS - occCount;
-          const importTime = importedData.timestamp ? new Date(importedData.timestamp).toLocaleString() : 'unknown time';
-          showToast(`✅ Imported from previous shift! ${occCount} occupied, ${emptyCount} empty (data from ${importTime})`, 3500);
-          document.getElementById('importStatusText').innerHTML = `✅ Loaded handoff from ${importTime} — ready for your shift!`;
-          setTimeout(() => {
-            document.getElementById('importStatusText').innerHTML = `Tap "Send" to export, "Receive" to load previous shift's data`;
-          }, 5000);
-        } catch (err) {
-          console.error(err);
-          showToast('❌ Invalid file. Please use the JSON file exported from this app.', 3000);
-          document.getElementById('importStatusText').innerHTML = `❌ Import failed — need valid handoff JSON file`;
-          setTimeout(() => {
-            document.getElementById('importStatusText').innerHTML = `Tap "Send" to export, "Receive" to load previous shift's data`;
-          }, 4000);
-        }
-      };
-      reader.onerror = () => {
-        showToast('Error reading file', 2000);
-      };
-      reader.readAsText(file);
-    };
+      // Apply imported state
+      bedsOccupied = parsed.bedsOccupied.slice();
+      persistState();
+      renderAllRows();
+      const occ = bedsOccupied.filter(v => v === true).length;
+      const empty = TOTAL_BEDS - occ;
+      const importTime = parsed.timestamp ? new Date(parsed.timestamp).toLocaleString('fa-IR') : 'زمان نامشخص';
+      showToast(`✅ وضعیت از شیفت قبل بارگذاری شد! ${occ} تخت پر، ${empty} تخت خالی (زمان: ${importTime})`, 3500);
+      document.getElementById('clipboardStatusText').innerHTML = `✅ وضعیت شیفت قبل (${importTime}) بارگذاری شد. اکنون مدیریت کنید.`;
+      setTimeout(() => {
+        document.getElementById('clipboardStatusText').innerHTML = "وضعیت تخت‌ها را کپی کنید و برای شیفت بعد بچسبانید";
+      }, 6000);
+    } catch (err) {
+      console.error(err);
+      showToast("❌ داده معتبری در کلیپ‌بورد یافت نشد. لطفاً فایل JSON یا متن کپی‌شده از این برنامه را بچسبانید.", 3000);
+      document.getElementById('clipboardStatusText').innerHTML = "❌ خطا: داده نامعتبر. دکمه «کپی وضعیت» را در شیفت قبل بزنید.";
+      setTimeout(() => {
+        document.getElementById('clipboardStatusText').innerHTML = "وضعیت تخت‌ها را کپی کنید و برای شیفت بعد بچسبانید";
+      }, 4000);
+    }
   }
   
-  // clear all beds
+  // Clear all beds (all empty)
   function setAllEmpty() {
-    if (confirm('⚠️ Clear all beds? All patients will be discharged. Every bed becomes EMPTY for new shift.')) {
+    if (confirm("⚠️ هشدار: تمام تخت‌ها خالی می‌شوند. بیماران ترخیص می‌شوند. ادامه می‌دهید؟")) {
       bedsOccupied.fill(false);
       persistState();
       renderAllRows();
-      showToast('All beds cleared — ready for next shift', 1500);
+      showToast("🧹 همه تخت‌ها خالی شدند. وضعیت بازنشانی شد.", 1500);
     }
   }
   
-  // Demo occupancy (helper)
-  function applyDemoOnLoad() {
-    // only if fresh state (already loaded, but we just keep initial demo)
-  }
-  
-  // PWA service worker
+  // ---- PWA Service Worker (for offline & install) ----
   function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'er-bed-v2';
+        const CACHE_NAME = 'er-bed-pwa-v2';
         const urlsToCache = ['./', './index.html'];
         self.addEventListener('install', event => {
           event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache)));
@@ -633,29 +589,30 @@
       `;
       const blob = new Blob([swCode], {type: 'application/javascript'});
       const swUrl = URL.createObjectURL(blob);
-      navigator.serviceWorker.register(swUrl).catch(err => console.warn('SW error:', err));
+      navigator.serviceWorker.register(swUrl).catch(err => console.warn('SW registration failed (non-critical):', err));
     }
   }
   
-  // setup and event binding
+  // ---- Initialize everything ----
   function init() {
     loadState();
     persistState();
     renderAllRows();
-    attachBedEventDelegation();
+    attachBedEvents();
     
-    const shareBtn = document.getElementById('shareBtn');
-    const receiveBtn = document.getElementById('receiveBtn');
+    // Buttons
+    const copyBtn = document.getElementById('copyStatusBtn');
+    const pasteBtn = document.getElementById('pasteStatusBtn');
     const clearBtn = document.getElementById('clearAllBtn');
-    if (shareBtn) shareBtn.addEventListener('click', shareToNextShift);
-    if (receiveBtn) receiveBtn.addEventListener('click', receiveFromPreviousShift);
+    if (copyBtn) copyBtn.addEventListener('click', copyStatusToClipboard);
+    if (pasteBtn) pasteBtn.addEventListener('click', pasteStatusFromClipboard);
     if (clearBtn) clearBtn.addEventListener('click', setAllEmpty);
     
     registerServiceWorker();
     
-    // listen for custom share targets (if user opens via shared file)
-    if (window.location.search.includes('import=')) {
-      showToast('Handoff ready: use "Receive" button to import', 2500);
+    // check if there is pending data on load (optional)
+    if (window.location.search.includes('import_hint')) {
+      showToast('جهت تحویل شیفت، دکمه «چسباندن وضعیت» را بزنید.', 2000);
     }
   }
   
