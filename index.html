@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0f172a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>مدیریت تخت اورژانس</title>
+  <title>مدیریت تخت اورژانس | FoxiBed</title>
   <!-- QR & WebRTC -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
@@ -18,83 +18,99 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    body {
-      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', 'Vazirmatn', 'Roboto', sans-serif;
-      background: #f1f5f9;
-      color: #0f172a;
-      transition: background 0.2s, color 0.2s;
-      padding: 16px 12px 24px 12px;
+    :root {
+      --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      --gradient-danger: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
+      --gradient-dark: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+      --primary: #667eea;
+      --primary-dark: #5a67d8;
+      --primary-light: rgba(102, 126, 234, 0.15);
+      --danger: #ff6b6b;
+      --success: #4cd964;
+      --warning: #ffa726;
+      --bg-primary: #f8fafc;
+      --surface: #ffffff;
+      --surface-elevated: #f1f5f9;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --text-tertiary: #94a3b8;
+      --border: #e2e8f0;
+      --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+      --radius-md: 1rem;
+      --radius-lg: 1.25rem;
+      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* Dark mode */
     body.dark {
-      background: #0f172a;
-      color: #e2e8f0;
+      --bg-primary: #111827;
+      --surface: #1f2937;
+      --surface-elevated: #374151;
+      --text-primary: #f9fafb;
+      --text-secondary: #d1d5db;
+      --text-tertiary: #9ca3af;
+      --border: #374151;
+      --shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+      --primary: #60a5fa;
     }
-    body.dark .card, body.dark .bed-card, body.dark .stats-card, body.dark .sync-card {
-      background: #1e293b;
-      border-color: #334155;
+
+    body {
+      font-family: 'Vazirmatn', system-ui, 'Segoe UI', 'Roboto', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      padding: 0 12px 24px;
+      transition: background 0.2s, color 0.2s;
     }
-    body.dark .btn-outline {
-      background: #334155;
-      border-color: #475569;
-      color: #f1f5f9;
-    }
-    body.dark .bed-card.occupied { background: #2d1a1a; border-top-color: #f87171; }
-    body.dark .bed-card.empty { background: #1a2e1a; border-top-color: #4ade80; }
-    body.dark .filter-btn.active { background: #3b82f6; border-color: #3b82f6; }
-    body.dark .credit-line { background: #1e293b; }
 
     .app-container {
       max-width: 700px;
       margin: 0 auto;
     }
 
-    /* Typography */
-    h1 {
-      font-size: 1.6rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, #0b3b5f, #2c7da0);
-      background-clip: text;
-      -webkit-background-clip: text;
-      color: transparent;
-      letter-spacing: -0.3px;
-    }
-    body.dark h1 {
-      background: linear-gradient(135deg, #93c5fd, #6ee7b7);
-    }
-
-    /* Header row */
-    .header-row {
+    /* header */
+    .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
       gap: 12px;
-      margin-bottom: 20px;
+      padding: 16px 0 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
     }
-    .stats-badge {
-      background: white;
-      padding: 6px 16px;
-      border-radius: 60px;
-      font-weight: 600;
-      font-size: 0.85rem;
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: var(--gradient-primary);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      letter-spacing: -0.3px;
+    }
+    .stats {
       display: flex;
-      gap: 16px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+      gap: 12px;
+      background: var(--surface);
+      padding: 6px 14px;
+      border-radius: 60px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      box-shadow: var(--shadow-sm);
     }
-    body.dark .stats-badge { background: #1e293b; }
+    .stats span { display: flex; align-items: center; gap: 5px; }
 
-    /* Action buttons row */
+    /* action row */
     .action-row {
       display: flex;
       gap: 12px;
-      margin-bottom: 20px;
       flex-wrap: wrap;
+      margin-bottom: 20px;
+      justify-content: center;
     }
-    .btn-icon {
-      background: white;
+    .btn {
       border: none;
+      background: var(--surface);
       padding: 8px 18px;
       border-radius: 40px;
       font-weight: 500;
@@ -103,66 +119,42 @@
       align-items: center;
       gap: 8px;
       cursor: pointer;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      transition: 0.08s linear;
-      border: 1px solid #e2e8f0;
+      transition: var(--transition);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      font-family: inherit;
     }
-    .btn-icon:active { transform: scale(0.97); }
-    .btn-primary {
-      background: #0b3b5f;
-      color: white;
-      border: none;
-    }
-    .btn-secondary {
-      background: #f8fafc;
-      border: 1px solid #cbd5e1;
-    }
-    body.dark .btn-secondary { background: #334155; border-color: #475569; color: #e2e8f0; }
+    .btn-primary { background: var(--gradient-primary); color: white; border: none; }
+    .btn-danger { background: var(--gradient-danger); color: white; border: none; }
+    .btn-icon { background: var(--surface-elevated); }
+    .btn:active { transform: scale(0.96); }
 
-    /* Sync card (modern glass) */
+    /* sync card */
     .sync-card {
-      background: white;
-      border-radius: 28px;
-      padding: 14px 18px;
+      background: var(--surface);
+      border-radius: 24px;
+      padding: 16px;
       margin-bottom: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-      border: 1px solid #e2e8f0;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
     }
     .sync-title {
       font-size: 0.75rem;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      color: #475569;
+      color: var(--text-tertiary);
       margin-bottom: 12px;
-      font-weight: 600;
     }
     .sync-buttons {
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
     }
-    .qr-area {
-      margin-top: 14px;
-      text-align: center;
-    }
-    #qrcode img, #qrcode canvas {
-      max-width: 140px;
-      border-radius: 16px;
-      background: white;
-      padding: 8px;
-    }
-    #webrtcStatus {
-      font-size: 0.7rem;
-      margin-top: 10px;
-      color: #2c6e9e;
-    }
-    .scanner-container {
-      margin-top: 10px;
-      border-radius: 20px;
-      overflow: hidden;
-    }
+    .qr-area { text-align: center; margin-top: 12px; }
+    #qrcode img, #qrcode canvas { max-width: 140px; background: white; border-radius: 16px; padding: 8px; }
+    #webrtcStatus { font-size: 0.7rem; margin-top: 8px; color: var(--primary); }
 
-    /* Filter & Clear row */
+    /* filter bar */
     .filter-bar {
       display: flex;
       justify-content: space-between;
@@ -177,72 +169,70 @@
       flex-wrap: wrap;
     }
     .filter-btn {
-      background: white;
-      border: 1px solid #cbd5e1;
+      background: var(--surface);
+      border: 1px solid var(--border);
       border-radius: 40px;
       padding: 6px 16px;
       font-size: 0.75rem;
       font-weight: 500;
       cursor: pointer;
-      transition: 0.05s;
+      transition: var(--transition);
+      color: var(--text-secondary);
     }
     .filter-btn.active {
-      background: #0b3b5f;
-      border-color: #0b3b5f;
+      background: var(--gradient-primary);
+      border-color: transparent;
       color: white;
     }
-    .btn-clear {
-      background: #b91c1c;
+    .clear-btn {
+      background: var(--gradient-danger);
       border: none;
-      color: white;
       padding: 6px 20px;
       border-radius: 40px;
       font-size: 0.75rem;
-      font-weight: 500;
+      font-weight: 600;
+      color: white;
       cursor: pointer;
     }
 
-    /* Bed rows */
+    /* bed rows */
     .bed-row {
-      background: rgba(255,255,255,0.6);
-      backdrop-filter: blur(2px);
+      background: var(--surface);
       border-radius: 28px;
-      padding: 12px 12px;
+      padding: 16px 12px;
       margin-bottom: 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
     }
     .row-header {
-      padding: 0 6px 10px 6px;
+      padding: 0 8px 12px;
       font-weight: 700;
       font-size: 0.9rem;
       display: flex;
       align-items: baseline;
       gap: 10px;
-      border-right: 3px solid #0b3b5f;
-      margin-right: 6px;
+      border-right: 3px solid var(--primary);
+      margin-right: 4px;
     }
     .beds-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
       gap: 12px;
     }
     .bed-card {
-      background: white;
+      background: var(--surface-elevated);
       border-radius: 20px;
-      padding: 10px 4px;
+      padding: 12px 6px;
       text-align: center;
       cursor: pointer;
-      transition: 0.08s linear;
+      transition: var(--transition);
       border-top: 3px solid;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      box-shadow: var(--shadow-sm);
     }
-    .bed-card.occupied { background: #fff5f5; border-top-color: #dc2626; }
-    .bed-card.empty { background: #f0fdf4; border-top-color: #22c55e; }
-    .bed-card:active { transform: scale(0.97); }
-    .bed-number {
-      font-size: 1.2rem;
-      font-weight: 800;
-    }
+    .bed-card.occupied { background: rgba(255, 107, 107, 0.1); border-top-color: var(--danger); }
+    .bed-card.empty { background: rgba(76, 217, 100, 0.1); border-top-color: var(--success); }
+    .bed-card:active { transform: scale(0.96); }
+    .bed-number { font-size: 1.2rem; font-weight: 800; }
     .bed-status {
       font-size: 0.6rem;
       font-weight: 700;
@@ -251,23 +241,21 @@
       border-radius: 30px;
       display: inline-block;
     }
-    .occupied .bed-status { background: #fee2e2; color: #b91c1c; }
-    .empty .bed-status { background: #dcfce7; color: #15803d; }
+    .occupied .bed-status { background: rgba(255, 107, 107, 0.2); color: var(--danger); }
+    .empty .bed-status { background: rgba(76, 217, 100, 0.2); color: var(--success); }
 
-    .footer {
-      margin-top: 20px;
+    .footer-note {
       text-align: center;
       font-size: 0.65rem;
-      background: white;
-      border-radius: 30px;
-      padding: 10px;
+      color: var(--text-tertiary);
+      margin-top: 20px;
+      padding: 8px;
+      border-top: 1px solid var(--border);
     }
-    .credit-line {
+    .credit {
       text-align: center;
       font-size: 0.6rem;
-      background: white;
-      border-radius: 30px;
-      padding: 6px;
+      color: var(--text-tertiary);
       margin-top: 10px;
       direction: ltr;
     }
@@ -290,45 +278,44 @@
       70% { opacity: 1; }
       100% { opacity: 0; transform: translateX(-50%) translateY(-10px); visibility: hidden; }
     }
-
     @media (max-width: 480px) {
       .beds-grid { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px; }
-      .btn-icon { padding: 6px 14px; font-size: 0.7rem; }
+      .btn { padding: 6px 12px; font-size: 0.7rem; }
     }
   </style>
 </head>
 <body>
 <div class="app-container">
   <!-- Header -->
-  <div class="header-row">
-    <h1>🛏️ مدیریت تخت اورژانس</h1>
-    <div class="stats-badge">
-      <span>🟢 <span id="emptyCount">0</span> خالی</span>
-      <span>🔴 <span id="occupiedCount">0</span> پر</span>
+  <div class="header">
+    <h1>🛏️ FoxiBed | مدیریت تخت</h1>
+    <div class="stats">
+      <span>🟢 <span id="emptyCount">0</span></span>
+      <span>🔴 <span id="occupiedCount">0</span></span>
     </div>
   </div>
 
-  <!-- Top actions: Dark mode + Undo -->
+  <!-- Action row: Dark mode + Undo -->
   <div class="action-row">
-    <button id="darkModeBtn" class="btn-icon btn-secondary">🌙 حالت شب</button>
-    <button id="undoBtn" class="btn-icon btn-secondary">↩️ واگرد</button>
+    <button id="darkModeBtn" class="btn btn-icon"><i class="fas fa-moon"></i> حالت شب</button>
+    <button id="undoBtn" class="btn btn-icon"><i class="fas fa-undo-alt"></i> واگرد</button>
   </div>
 
-  <!-- Sync card: modern, clear send/receive -->
+  <!-- Sync card for shift handoff (WebRTC + QR) -->
   <div class="sync-card">
     <div class="sync-title">📲 تحویل شیفت بین دو دستگاه</div>
     <div class="sync-buttons">
-      <button id="sendSyncBtn" class="btn-icon btn-primary">📤 ارسال وضعیت (QR)</button>
-      <button id="receiveSyncBtn" class="btn-icon btn-secondary">📥 دریافت وضعیت (اسکن)</button>
-      <button id="cancelSyncBtn" class="btn-icon btn-secondary" style="display: none;">❌ لغو</button>
+      <button id="sendSyncBtn" class="btn btn-primary"><i class="fas fa-qrcode"></i> ارسال وضعیت (QR)</button>
+      <button id="receiveSyncBtn" class="btn btn-icon"><i class="fas fa-camera"></i> دریافت وضعیت (اسکن)</button>
+      <button id="cancelSyncBtn" class="btn btn-icon" style="display: none;"><i class="fas fa-times"></i> لغو</button>
     </div>
     <div id="qrDisplayArea" class="qr-area" style="display: none;">
       <div id="qrcode"></div>
-      <button id="hideQrBtn" class="btn-icon btn-secondary" style="margin-top: 8px;">✖️ بستن</button>
+      <button id="hideQrBtn" class="btn btn-icon" style="margin-top: 8px;">✖️ بستن</button>
     </div>
     <div id="scannerArea" style="display: none; margin-top: 10px;">
-      <div id="reader" class="scanner-container"></div>
-      <button id="stopScanBtn" class="btn-icon btn-secondary" style="margin-top: 8px;">❌ لغو اسکن</button>
+      <div id="reader" class="scanner-container" style="border-radius: 16px; overflow: hidden;"></div>
+      <button id="stopScanBtn" class="btn btn-icon" style="margin-top: 8px;">❌ لغو اسکن</button>
     </div>
     <div id="webrtcStatus" style="font-size: 0.7rem; margin-top: 8px;"></div>
   </div>
@@ -340,19 +327,21 @@
       <button id="filterEmpty" class="filter-btn">🟢 فقط خالی</button>
       <button id="filterOccupied" class="filter-btn">🔴 فقط اشغال</button>
     </div>
-    <button id="clearAllBtn" class="btn-clear">🗑️ همه تخلیه</button>
+    <button id="clearAllBtn" class="clear-btn"><i class="fas fa-trash-alt"></i> همه تخلیه</button>
   </div>
 
   <!-- Beds container -->
   <div id="rowsContainer"></div>
 
-  <div class="footer">✅ برای تغییر وضعیت تخت، روی هر تخت ضربه بزنید</div>
-  <div class="credit-line">Designed and developed by Mohammad Mahdi Taghavi</div>
+  <div class="footer-note">
+    ✅ روی هر تخت ضربه بزنید → پذیرش / ترخیص · دکمه واگرد برای بازگشت · فیلتر برای نمایش خالی/اشغال
+  </div>
+  <div class="credit">Designed and developed by Mohammad Mahdi Taghavi</div>
 </div>
 
 <script>
   // ---------- STATE & HISTORY ----------
-  const STORAGE_KEY = 'er_bed_modern';
+  const STORAGE_KEY = 'foxibed_state';
   const TOTAL_BEDS = 42;
   let bedsOccupied = new Array(TOTAL_BEDS).fill(false);
   let historyStack = [];
@@ -412,7 +401,7 @@
     document.getElementById('occupiedCount').innerText = occ;
   }
   
-  function showToast(msg, duration=2000) {
+  function showToast(msg, duration=1800) {
     const old = document.querySelector('.toast');
     if (old) old.remove();
     const toast = document.createElement('div');
@@ -475,17 +464,17 @@
   function toggleDarkMode() {
     document.body.classList.toggle('dark');
     const btn = document.getElementById('darkModeBtn');
-    btn.innerHTML = document.body.classList.contains('dark') ? "☀️ حالت روز" : "🌙 حالت شب";
+    btn.innerHTML = document.body.classList.contains('dark') ? "<i class='fas fa-sun'></i> حالت روز" : "<i class='fas fa-moon'></i> حالت شب";
     localStorage.setItem('darkMode', document.body.classList.contains('dark'));
   }
   
-  // ---------- WEBRTC PEER-TO-PEER (modern with STUN) ----------
+  // ---------- WEBRTC PEER-TO-PEER ----------
   let peerConnection = null, dataChannel = null;
   const webrtcStatusDiv = document.getElementById('webrtcStatus');
   const configuration = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
   
   async function initiateSend() {
-    if (peerConnection) { showToast("همگام‌سازی قبلی هنوز فعال است، لغو کنید"); return; }
+    if (peerConnection) { showToast("همگام‌سازی فعال است، لغو کنید"); return; }
     webrtcStatusDiv.innerText = "🔵 در حال آماده‌سازی اتصال...";
     peerConnection = new RTCPeerConnection(configuration);
     dataChannel = peerConnection.createDataChannel("bedsync");
@@ -529,7 +518,6 @@
   async function initiateReceive() {
     if (peerConnection) { showToast("لطفاً همگام‌سازی جاری را لغو کنید"); return; }
     webrtcStatusDiv.innerText = "🟢 آماده اسکن QR از دستگاه دیگر...";
-    // show scanner
     document.getElementById('scannerArea').style.display = "block";
     document.getElementById('qrDisplayArea').style.display = "none";
     const readerDiv = document.getElementById('reader');
@@ -596,7 +584,6 @@
   
   function cancelSync() { closeWebRTC(); showToast("همگام‌سازی لغو شد"); }
   
-  // Clear all
   function setAllEmpty() {
     if (confirm("همه تخت‌ها خالی می‌شوند. ادامه؟")) {
       pushToHistory();
@@ -607,7 +594,7 @@
     }
   }
   
-  // Event delegation for bed taps
+  // event delegation for bed taps
   function attachBedEvents() {
     document.body.addEventListener('click', (e) => {
       const card = e.target.closest('.bed-card');
@@ -637,5 +624,9 @@
   }
   init();
 </script>
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<!-- Persian font -->
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
 </body>
 </html>
