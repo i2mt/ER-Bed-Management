@@ -160,8 +160,31 @@
     .btn-primary { background: var(--gradient-primary); color: white; border: none; }
     .btn:active { transform: scale(0.96); }
     .qr-area { text-align: center; margin-top: 8px; }
-    #qrcode img, #qrcode canvas { max-width: 110px; background: white; border-radius: 12px; padding: 6px; }
+    #qrcode {
+      display: flex;
+      justify-content: center;
+    }
+    #qrcode img, #qrcode canvas {
+      max-width: 200px;
+      width: 200px;
+      height: auto;
+      background: white;
+      border-radius: 16px;
+      padding: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
     #webrtcStatus { font-size: 0.65rem; margin-top: 6px; color: var(--primary); }
+    .fallback-text {
+      font-size: 0.65rem;
+      margin-top: 8px;
+      padding: 6px;
+      background: var(--surface-elevated);
+      border-radius: 10px;
+      word-break: break-all;
+      direction: ltr;
+      text-align: left;
+      display: none;
+    }
 
     /* Filter bar + Undo + Clear all */
     .action-bar {
@@ -312,6 +335,7 @@
       h1 { font-size: 0.95rem; }
       .stats { gap: 6px; padding: 3px 8px; font-size: 0.65rem; }
       .dark-toggle { width: 32px; height: 32px; }
+      #qrcode img, #qrcode canvas { max-width: 160px; width: 160px; }
     }
   </style>
 </head>
@@ -337,13 +361,15 @@
     </div>
     <div id="qrDisplayArea" class="qr-area" style="display: none;">
       <div id="qrcode"></div>
+      <button id="copyFallbackBtn" class="btn" style="margin-top: 8px; display: none;"><i class="fas fa-copy"></i> کپی پیوند (راه جایگزین)</button>
       <button id="hideQrBtn" class="btn" style="margin-top: 6px;">✖️ بستن</button>
     </div>
     <div id="scannerArea" style="display: none; margin-top: 8px;">
-      <div id="reader" style="border-radius: 14px; overflow: hidden;"></div>
+      <div id="reader" style="border-radius: 14px; overflow: hidden; width: 100%;"></div>
       <button id="stopScanBtn" class="btn" style="margin-top: 6px;">❌ لغو اسکن</button>
     </div>
     <div id="webrtcStatus" style="font-size: 0.65rem; margin-top: 6px;"></div>
+    <div id="fallbackText" class="fallback-text"></div>
   </div>
 
   <!-- Filter bar + Undo + Clear all -->
@@ -497,7 +523,7 @@
     localStorage.setItem('darkMode', document.body.classList.contains('dark'));
   }
   
-  // ---------- WEBRTC PEER-TO-PEER ----------
+  // ---------- WEBRTC PEER-TO-PEER with better QR and fallback ----------
   let peerConnection = null, dataChannel = null;
   const webrtcStatusDiv = document.getElementById('webrtcStatus');
   const configuration = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
@@ -520,6 +546,9 @@
     const sdpString = JSON.stringify({ type: peerConnection.localDescription.type, sdp: peerConnection.localDescription.sdp });
     displayQR(sdpString, "ارسال");
     document.getElementById('cancelSyncBtn').style.display = "inline-flex";
+    // show fallback copy button
+    const fallbackBtn = document.getElementById('copyFallbackBtn');
+    if (fallbackBtn) fallbackBtn.style.display = "inline-flex";
   }
   
   function setupDataChannelEvents(channel) {
@@ -552,6 +581,7 @@
     const readerDiv = document.getElementById('reader');
     readerDiv.innerHTML = "";
     const html5Scanner = new Html5Qrcode("reader");
+    const config = { fps: 10, qrbox: { width: 280, height: 280 }, aspectRatio: 1.0 };
     const onSuccess = async (decodedText) => {
       try {
         const data = JSON.parse(decodedText);
@@ -576,14 +606,16 @@
           const answerSdp = JSON.stringify({ type: peerConnection.localDescription.type, sdp: peerConnection.localDescription.sdp });
           displayQR(answerSdp, "پاسخ");
           document.getElementById('cancelSyncBtn').style.display = "inline-flex";
+          const fallbackBtn = document.getElementById('copyFallbackBtn');
+          if (fallbackBtn) fallbackBtn.style.display = "inline-flex";
         } else {
-          showToast("QR نامعتبر");
+          showToast("QR نامعتبر (نوع درخواست نامناسب)");
           await html5Scanner.stop();
           document.getElementById('scannerArea').style.display = "none";
         }
       } catch(e) { showToast("QR نامعتبر"); await html5Scanner.stop(); document.getElementById('scannerArea').style.display = "none"; }
     };
-    await html5Scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, onSuccess);
+    await html5Scanner.start({ facingMode: "environment" }, config, onSuccess);
     window._activeScanner = html5Scanner;
     document.getElementById('stopScanBtn').onclick = () => { html5Scanner.stop(); document.getElementById('scannerArea').style.display = "none"; };
   }
@@ -591,10 +623,23 @@
   function displayQR(dataStr, label) {
     const qrDiv = document.getElementById('qrcode');
     qrDiv.innerHTML = "";
-    new QRCode(qrDiv, { text: dataStr, width: 120, height: 120 });
+    // Use larger QR code (width: 200)
+    new QRCode(qrDiv, { text: dataStr, width: 200, height: 200, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
     document.getElementById('qrDisplayArea').style.display = "block";
     document.getElementById('scannerArea').style.display = "none";
     webrtcStatusDiv.innerText = `📷 کد ${label} ساخته شد. دستگاه دیگر اسکن کند.`;
+    // Store fallback text for copy
+    const fallbackDiv = document.getElementById('fallbackText');
+    fallbackDiv.innerText = dataStr;
+    fallbackDiv.style.display = "block";
+  }
+  
+  function copyFallback() {
+    const text = document.getElementById('fallbackText').innerText;
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      showToast("📋 متن پیوند کپی شد. برای دستگاه دیگر ارسال کنید (تلگرام، واتساپ یا...)");
+    }).catch(() => showToast("کپی ناموفق"));
   }
   
   function closeWebRTC() {
@@ -605,10 +650,10 @@
     document.getElementById('qrDisplayArea').style.display = "none";
     document.getElementById('scannerArea').style.display = "none";
     webrtcStatusDiv.innerText = "";
-    if (window._activeScanner) {
-      window._activeScanner.stop().catch(e=>console.log);
-      window._activeScanner = null;
-    }
+    const fallbackDiv = document.getElementById('fallbackText');
+    fallbackDiv.style.display = "none";
+    const fallbackBtn = document.getElementById('copyFallbackBtn');
+    if (fallbackBtn) fallbackBtn.style.display = "none";
   }
   
   function cancelSync() { closeWebRTC(); showToast("همگام‌سازی لغو شد"); }
@@ -647,6 +692,7 @@
     document.getElementById('hideQrBtn').onclick = () => { document.getElementById('qrDisplayArea').style.display = "none"; closeWebRTC(); };
     document.getElementById('cancelSyncBtn').onclick = cancelSync;
     document.getElementById('stopScanBtn').onclick = () => { if(window._activeScanner) window._activeScanner.stop(); document.getElementById('scannerArea').style.display = "none"; };
+    document.getElementById('copyFallbackBtn').onclick = copyFallback;
     if (localStorage.getItem('darkMode') === 'true') toggleDarkMode();
   }
   init();
