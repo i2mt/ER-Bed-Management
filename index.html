@@ -129,8 +129,8 @@
     .qr-area { text-align: center; margin-top: 8px; }
     #qrcode { display: flex; justify-content: center; }
     #qrcode img, #qrcode canvas {
-      max-width: 300px;
-      width: 300px;
+      max-width: 250px;
+      width: 250px;
       height: auto;
       background: white;
       border-radius: 20px;
@@ -150,6 +150,17 @@
       max-height: 100px;
       overflow-y: auto;
       font-family: monospace;
+    }
+    .debug-area {
+      margin-top: 8px;
+      font-size: 0.65rem;
+      background: rgba(0,0,0,0.05);
+      padding: 6px;
+      border-radius: 10px;
+      display: none;
+      direction: ltr;
+      text-align: left;
+      color: var(--text-secondary);
     }
     .action-bar {
       display: flex;
@@ -262,7 +273,7 @@
       h1 { font-size: 0.95rem; }
       .stats { gap: 6px; padding: 3px 8px; }
       .dark-toggle { width: 32px; height: 32px; }
-      #qrcode img, #qrcode canvas { max-width: 220px; width: 220px; }
+      #qrcode img, #qrcode canvas { max-width: 200px; width: 200px; }
     }
   </style>
 </head>
@@ -277,7 +288,7 @@
     </div>
   </div>
 
-  <!-- Sync card: simple QR + copy/paste -->
+  <!-- Sync card: QR + copy/paste -->
   <div class="sync-card">
     <div class="sync-title">📲 تحویل شیفت</div>
     <div class="sync-buttons">
@@ -292,6 +303,7 @@
     </div>
     <div id="scannerArea" style="display: none; margin-top: 8px;">
       <div id="reader" style="border-radius: 14px; overflow: hidden;"></div>
+      <div id="scanDebug" class="debug-area"></div>
       <button id="stopScanBtn" class="btn" style="margin-top: 6px;">❌ لغو اسکن</button>
     </div>
     <div id="fallbackText" class="fallback-text"></div>
@@ -438,7 +450,7 @@
     localStorage.setItem('darkMode', document.body.classList.contains('dark'));
   }
   
-  // ---------- QR handoff (no WebRTC) ----------
+  // ---------- QR handoff (direct encode/decode) ----------
   function generateBedData() {
     return JSON.stringify({ beds: bedsOccupied.slice(), v: 1 });
   }
@@ -447,11 +459,11 @@
     const dataStr = generateBedData();
     const qrDiv = document.getElementById('qrcode');
     qrDiv.innerHTML = "";
-    // High error correction, big size
+    // High error correction, size 250px
     new QRCode(qrDiv, {
       text: dataStr,
-      width: 300,
-      height: 300,
+      width: 250,
+      height: 250,
       colorDark: "#000000",
       colorLight: "#ffffff",
       correctLevel: QRCode.CorrectLevel.H
@@ -470,11 +482,16 @@
     scannerDiv.style.display = "block";
     const readerElem = document.getElementById('reader');
     readerElem.innerHTML = "";
+    const debugDiv = document.getElementById('scanDebug');
+    debugDiv.style.display = "block";
+    debugDiv.innerHTML = "🔍 دوربین در حال راه‌اندازی...";
+    
     const html5Scanner = new Html5Qrcode("reader");
-    const config = { fps: 10, qrbox: { width: 300, height: 300 }, aspectRatio: 1.0 };
+    const config = { fps: 10, qrbox: { width: 280, height: 280 }, aspectRatio: 1.0 };
+    
     const onSuccess = (decodedText) => {
+      debugDiv.innerHTML = `✅ کد خوانده شد: ${decodedText.substring(0, 80)}...`;
       try {
-        console.log("QR decoded:", decodedText);
         const data = JSON.parse(decodedText);
         if (data.beds && Array.isArray(data.beds) && data.beds.length === TOTAL_BEDS) {
           const valid = data.beds.every(item => typeof item === 'boolean');
@@ -486,23 +503,29 @@
             showToast("✅ وضعیت تخت‌ها از QR دریافت شد", 2000);
             html5Scanner.stop().catch(e=>console.log);
             scannerDiv.style.display = "none";
+            debugDiv.style.display = "none";
           } else throw new Error("Invalid data type");
         } else throw new Error("Invalid structure");
       } catch(e) {
-        console.error(e);
+        debugDiv.innerHTML = `❌ خطا: داده نامعتبر - ${e.message}`;
         showToast("QR نامعتبر: داده تخت‌ها صحیح نیست", 2500);
-        html5Scanner.stop().catch(e=>console.log);
-        scannerDiv.style.display = "none";
+        // don't stop scanner, let user try again
       }
     };
-    html5Scanner.start({ facingMode: "environment" }, config, onSuccess).catch(err => {
+    
+    const onError = (err) => {
+      debugDiv.innerHTML = `⚠️ خطای اسکن: ${err}`;
+    };
+    
+    html5Scanner.start({ facingMode: "environment" }, config, onSuccess, onError).catch(err => {
+      debugDiv.innerHTML = `❌ دسترسی به دوربین ممکن نیست: ${err}`;
       showToast("دسترسی به دوربین ممکن نیست", 2000);
-      scannerDiv.style.display = "none";
     });
     window._activeScanner = html5Scanner;
     document.getElementById('stopScanBtn').onclick = () => {
       html5Scanner.stop().catch(e=>console.log);
       scannerDiv.style.display = "none";
+      debugDiv.style.display = "none";
     };
   }
   
@@ -576,7 +599,6 @@
     document.getElementById('filterEmpty').onclick = () => setFilter('empty');
     document.getElementById('filterOccupied').onclick = () => setFilter('occupied');
     document.getElementById('hideQrBtn').onclick = hideQR;
-    document.getElementById('stopScanBtn').onclick = () => { if(window._activeScanner) window._activeScanner.stop(); document.getElementById('scannerArea').style.display = "none"; };
     document.getElementById('copyTextBtn').onclick = copyFallbackText;
     if (localStorage.getItem('darkMode') === 'true') toggleDarkMode();
   }
