@@ -210,7 +210,7 @@
     }
     .scanner-panel.open { display: block; }
 
-    #reader { border-radius: 14px; overflow: hidden; }
+    #reader { border-radius: 14px; overflow: visible; min-height: 260px; }
 
     .scanner-status {
       font-size: 0.68rem;
@@ -607,30 +607,40 @@ function toggleDark() {
   localStorage.setItem('dark', on);
 }
 
-// ── QR Send ──
+// ── Shift card helpers ──
 let _scanner = null;
 
-function showQR() {
-  closeScannerPanel();
-  const encoded = encode(beds);
-  const qrDiv = document.getElementById('qrcode');
-  qrDiv.innerHTML = '';
-  // Tiny payload → use L correction for maximum readability
-  new QRCode(qrDiv, {
-    text: encoded,
-    width: 240,
-    height: 240,
-    colorDark: '#000000',
-    colorLight: '#ffffff',
-    correctLevel: QRCode.CorrectLevel.L,
-  });
-  document.getElementById('qrPanel').classList.add('open');
-  toast("QR آماده — دستگاه مقابل اسکن کند");
+function openShiftCard() { document.getElementById('shiftCard').classList.add('open'); }
+function closeShiftCard() {
+  document.getElementById('shiftCard').classList.remove('open');
+  document.getElementById('qrPanel').classList.remove('open');
+  document.getElementById('scannerPanel').classList.remove('open');
 }
 
-function hideQR() {
+function showQR() {
+  if (_scanner) { _scanner.stop().catch(()=>{}); _scanner = null; }
+  // Open card FIRST so elements have real dimensions before QRCode renders
+  document.getElementById('scannerPanel').classList.remove('open');
   document.getElementById('qrPanel').classList.remove('open');
+  openShiftCard();
+  requestAnimationFrame(() => {
+    const encoded = encode(beds);
+    const qrDiv = document.getElementById('qrcode');
+    qrDiv.innerHTML = '';
+    new QRCode(qrDiv, {
+      text: encoded,
+      width: 240,
+      height: 240,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.L,
+    });
+    document.getElementById('qrPanel').classList.add('open');
+    toast("QR آماده — دستگاه مقابل اسکن کند");
+  });
 }
+
+function hideQR() { closeShiftCard(); }
 
 function copyText() {
   const encoded = encode(beds);
@@ -655,45 +665,46 @@ async function pasteText() {
 
 // ── QR Scan ──
 function startScanner() {
-  hideQR();
+  document.getElementById('qrPanel').classList.remove('open');
+  // Open card + panel BEFORE init so <video> gets real dimensions
+  openShiftCard();
   document.getElementById('scannerPanel').classList.add('open');
   const status = document.getElementById('scanStatus');
   status.textContent = '🔍 دوربین در حال راه‌اندازی...';
   document.getElementById('reader').innerHTML = '';
 
-  const scanner = new Html5Qrcode('reader');
-  _scanner = scanner;
+  // Defer scanner init one frame so layout is flushed first
+  requestAnimationFrame(() => {
+    const scanner = new Html5Qrcode('reader');
+    _scanner = scanner;
 
-  scanner.start(
-    { facingMode: 'environment' },
-    { fps: 12, qrbox: { width: 260, height: 260 } },
-    (text) => {
-      status.textContent = '✅ کد خوانده شد';
-      const arr = decode(text.trim());
-      if (arr) {
-        pushHistory();
-        beds = arr;
-        save(); render();
-        toast("✅ وضعیت تخت‌ها از QR دریافت شد");
-        stopScanner();
-      } else {
-        status.textContent = '❌ QR نامعتبر است — دوباره تلاش کنید';
-      }
-    },
-    (err) => { /* silent scan errors */ }
-  ).catch(err => {
-    status.textContent = `❌ دسترسی به دوربین ممکن نیست`;
-    toast("دسترسی به دوربین ممکن نیست");
+    scanner.start(
+      { facingMode: 'environment' },
+      { fps: 12, qrbox: { width: 240, height: 240 } },
+      (text) => {
+        status.textContent = '✅ کد خوانده شد';
+        const arr = decode(text.trim());
+        if (arr) {
+          pushHistory();
+          beds = arr;
+          save(); render();
+          toast("✅ وضعیت تخت‌ها از QR دریافت شد");
+          stopScanner();
+        } else {
+          status.textContent = '❌ QR نامعتبر است — دوباره تلاش کنید';
+        }
+      },
+      () => {}
+    ).catch(() => {
+      status.textContent = '❌ دسترسی به دوربین ممکن نیست';
+      toast("دسترسی به دوربین ممکن نیست");
+    });
   });
 }
 
 function stopScanner() {
   if (_scanner) { _scanner.stop().catch(()=>{}); _scanner = null; }
-  closeScannerPanel();
-}
-
-function closeScannerPanel() {
-  document.getElementById('scannerPanel').classList.remove('open');
+  closeShiftCard();
 }
 
 // ── Clear all ──
