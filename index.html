@@ -165,25 +165,28 @@
       justify-content: center;
     }
     #qrcode img, #qrcode canvas {
-      max-width: 200px;
-      width: 200px;
+      max-width: 250px;
+      width: 250px;
       height: auto;
       background: white;
       border-radius: 16px;
-      padding: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
     #webrtcStatus { font-size: 0.65rem; margin-top: 6px; color: var(--primary); }
     .fallback-text {
       font-size: 0.65rem;
       margin-top: 8px;
-      padding: 6px;
+      padding: 8px;
       background: var(--surface-elevated);
       border-radius: 10px;
       word-break: break-all;
       direction: ltr;
       text-align: left;
       display: none;
+      max-height: 120px;
+      overflow-y: auto;
+      font-family: monospace;
     }
 
     /* Filter bar + Undo + Clear all */
@@ -335,7 +338,7 @@
       h1 { font-size: 0.95rem; }
       .stats { gap: 6px; padding: 3px 8px; font-size: 0.65rem; }
       .dark-toggle { width: 32px; height: 32px; }
-      #qrcode img, #qrcode canvas { max-width: 160px; width: 160px; }
+      #qrcode img, #qrcode canvas { max-width: 200px; width: 200px; }
     }
   </style>
 </head>
@@ -357,11 +360,12 @@
     <div class="sync-buttons">
       <button id="sendSyncBtn" class="btn btn-primary"><i class="fas fa-qrcode"></i> ارسال QR</button>
       <button id="receiveSyncBtn" class="btn"><i class="fas fa-camera"></i> اسکن QR</button>
+      <button id="pasteSyncBtn" class="btn"><i class="fas fa-paste"></i> چسباندن متن</button>
       <button id="cancelSyncBtn" class="btn" style="display: none;"><i class="fas fa-times"></i> لغو</button>
     </div>
     <div id="qrDisplayArea" class="qr-area" style="display: none;">
       <div id="qrcode"></div>
-      <button id="copyFallbackBtn" class="btn" style="margin-top: 8px; display: none;"><i class="fas fa-copy"></i> کپی پیوند (راه جایگزین)</button>
+      <button id="copyFallbackBtn" class="btn" style="margin-top: 8px;"><i class="fas fa-copy"></i> کپی متن پیوند (راه جایگزین)</button>
       <button id="hideQrBtn" class="btn" style="margin-top: 6px;">✖️ بستن</button>
     </div>
     <div id="scannerArea" style="display: none; margin-top: 8px;">
@@ -525,6 +529,7 @@
   
   // ---------- WEBRTC PEER-TO-PEER with better QR and fallback ----------
   let peerConnection = null, dataChannel = null;
+  let pendingOffer = null; // for paste fallback
   const webrtcStatusDiv = document.getElementById('webrtcStatus');
   const configuration = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
   
@@ -546,9 +551,6 @@
     const sdpString = JSON.stringify({ type: peerConnection.localDescription.type, sdp: peerConnection.localDescription.sdp });
     displayQR(sdpString, "ارسال");
     document.getElementById('cancelSyncBtn').style.display = "inline-flex";
-    // show fallback copy button
-    const fallbackBtn = document.getElementById('copyFallbackBtn');
-    if (fallbackBtn) fallbackBtn.style.display = "inline-flex";
   }
   
   function setupDataChannelEvents(channel) {
@@ -606,8 +608,6 @@
           const answerSdp = JSON.stringify({ type: peerConnection.localDescription.type, sdp: peerConnection.localDescription.sdp });
           displayQR(answerSdp, "پاسخ");
           document.getElementById('cancelSyncBtn').style.display = "inline-flex";
-          const fallbackBtn = document.getElementById('copyFallbackBtn');
-          if (fallbackBtn) fallbackBtn.style.display = "inline-flex";
         } else {
           showToast("QR نامعتبر (نوع درخواست نامناسب)");
           await html5Scanner.stop();
@@ -623,22 +623,63 @@
   function displayQR(dataStr, label) {
     const qrDiv = document.getElementById('qrcode');
     qrDiv.innerHTML = "";
-    // Use larger QR code (width: 200)
-    new QRCode(qrDiv, { text: dataStr, width: 200, height: 200, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
+    // Larger QR code with high error correction (Level H)
+    new QRCode(qrDiv, { text: dataStr, width: 250, height: 250, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H });
     document.getElementById('qrDisplayArea').style.display = "block";
     document.getElementById('scannerArea').style.display = "none";
-    webrtcStatusDiv.innerText = `📷 کد ${label} ساخته شد. دستگاه دیگر اسکن کند.`;
+    webrtcStatusDiv.innerText = `📷 کد ${label} ساخته شد (سایز بزرگ، تصحیح خطای بالا). دستگاه دیگر اسکن کند.`;
     // Store fallback text for copy
     const fallbackDiv = document.getElementById('fallbackText');
     fallbackDiv.innerText = dataStr;
     fallbackDiv.style.display = "block";
   }
   
+  async function pasteConnection() {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (!text) { showToast("کلیپ‌بورد خالی است"); return; }
+      const data = JSON.parse(text);
+      if (data.type && data.sdp && data.type === "offer") {
+        // Acting as receiver (answer)
+        if (peerConnection) { showToast("لطفاً همگام‌سازی جاری را لغو کنید"); return; }
+        webrtcStatusDiv.innerText = "🟣 در حال اتصال با متن چسبانده شده...";
+        peerConnection = new RTCPeerConnection(configuration);
+        peerConnection.ondatachannel = (event) => {
+          dataChannel = event.channel;
+          setupDataChannelEvents(dataChannel);
+        };
+        await peerConnection.setRemoteDescription(new RTCSessionDescription({ type: data.type, sdp: data.sdp }));
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+        await new Promise(resolve => {
+          if (peerConnection.iceGatheringState === 'complete') resolve();
+          else peerConnection.onicegatheringstatechange = () => {
+            if (peerConnection.iceGatheringState === 'complete') resolve();
+          };
+        });
+        const answerSdp = JSON.stringify({ type: peerConnection.localDescription.type, sdp: peerConnection.localDescription.sdp });
+        displayQR(answerSdp, "پاسخ (متن)");
+        document.getElementById('cancelSyncBtn').style.display = "inline-flex";
+        showToast("✅ اتصال برقرار شد. در حال ارسال وضعیت...");
+      } else if (data.type && data.sdp && data.type === "answer") {
+        // If we have a pending offer, complete connection
+        if (peerConnection && peerConnection.localDescription && peerConnection.localDescription.type === "offer") {
+          await peerConnection.setRemoteDescription(new RTCSessionDescription({ type: data.type, sdp: data.sdp }));
+          webrtcStatusDiv.innerText = "✅ اتصال کامل شد، در حال دریافت وضعیت...";
+        } else {
+          showToast("ابتدا باید در دستگاه دیگر دکمه 'ارسال QR' زده شود");
+        }
+      } else {
+        showToast("متن معتبر برای همگام‌سازی نیست");
+      }
+    } catch(e) { showToast("خطا در خواندن یا پردازش متن کلیپ‌بورد"); }
+  }
+  
   function copyFallback() {
     const text = document.getElementById('fallbackText').innerText;
     if (!text) return;
     navigator.clipboard.writeText(text).then(() => {
-      showToast("📋 متن پیوند کپی شد. برای دستگاه دیگر ارسال کنید (تلگرام، واتساپ یا...)");
+      showToast("📋 متن پیوند کپی شد. حالا در دستگاه دیگر دکمه 'چسباندن متن' را بزنید.");
     }).catch(() => showToast("کپی ناموفق"));
   }
   
@@ -652,8 +693,7 @@
     webrtcStatusDiv.innerText = "";
     const fallbackDiv = document.getElementById('fallbackText');
     fallbackDiv.style.display = "none";
-    const fallbackBtn = document.getElementById('copyFallbackBtn');
-    if (fallbackBtn) fallbackBtn.style.display = "none";
+    fallbackDiv.innerText = "";
   }
   
   function cancelSync() { closeWebRTC(); showToast("همگام‌سازی لغو شد"); }
@@ -685,6 +725,7 @@
     document.getElementById('darkModeBtn').onclick = toggleDarkMode;
     document.getElementById('sendSyncBtn').onclick = initiateSend;
     document.getElementById('receiveSyncBtn').onclick = initiateReceive;
+    document.getElementById('pasteSyncBtn').onclick = pasteConnection;
     document.getElementById('clearAllBtn').onclick = setAllEmpty;
     document.getElementById('filterAll').onclick = () => setFilter('all');
     document.getElementById('filterEmpty').onclick = () => setFilter('empty');
