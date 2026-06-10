@@ -70,42 +70,17 @@
       margin: 0 auto;
     }
 
-    /* Compact header */
-    .header {
+    /* Compact header row: toggle | title | stats */
+    .header-row {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 12px 0 6px 0;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 0 6px 0;
       margin-bottom: 8px;
       border-bottom: 1px solid var(--border);
     }
-    h1 {
-      font-size: 1.2rem;
-      font-weight: 700;
-      background: var(--gradient-primary);
-      background-clip: text;
-      -webkit-background-clip: text;
-      color: transparent;
-    }
-    .stats {
-      display: flex;
-      gap: 12px;
-      background: var(--surface);
-      padding: 4px 12px;
-      border-radius: 40px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      box-shadow: var(--shadow);
-    }
-    .stats span { display: flex; align-items: center; gap: 4px; }
-
-    /* Top left dark mode icon only */
-    .top-bar {
-      display: flex;
-      justify-content: flex-start;
-      margin-bottom: 10px;
-    }
-    .icon-only {
+    .dark-toggle {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 40px;
@@ -117,8 +92,33 @@
       cursor: pointer;
       transition: var(--transition);
       color: var(--text-secondary);
+      flex-shrink: 0;
     }
-    .icon-only:active { transform: scale(0.95); }
+    .dark-toggle:active { transform: scale(0.95); }
+    h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      background: var(--gradient-primary);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      margin: 0;
+      line-height: 1.2;
+      flex: 1;
+      text-align: center;
+    }
+    .stats {
+      display: flex;
+      gap: 10px;
+      background: var(--surface);
+      padding: 4px 10px;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+      flex-shrink: 0;
+    }
+    .stats span { display: flex; align-items: center; gap: 4px; }
 
     /* Compact sync card */
     .sync-card {
@@ -309,18 +309,17 @@
       .beds-grid { grid-template-columns: repeat(auto-fill, minmax(68px, 1fr)); gap: 8px; }
       .btn { padding: 4px 10px; font-size: 0.65rem; }
       .filter-btn { padding: 4px 10px; font-size: 0.65rem; }
+      h1 { font-size: 0.95rem; }
+      .stats { gap: 6px; padding: 3px 8px; font-size: 0.65rem; }
+      .dark-toggle { width: 32px; height: 32px; }
     }
   </style>
 </head>
 <body>
 <div class="app-container">
-  <!-- Dark mode icon only (top left) -->
-  <div class="top-bar">
-    <button id="darkModeBtn" class="icon-only"><i class="fas fa-moon"></i></button>
-  </div>
-
-  <!-- Header with title and stats -->
-  <div class="header">
+  <!-- Single header row: dark toggle, title, stats -->
+  <div class="header-row">
+    <button id="darkModeBtn" class="dark-toggle"><i class="fas fa-moon"></i></button>
     <h1>🛏️ مدیریت تخت هوشمند</h1>
     <div class="stats">
       <span>🟢 <span id="emptyCount">0</span></span>
