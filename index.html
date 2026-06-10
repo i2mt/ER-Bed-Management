@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>مدیریت تخت هوشمند | Smart Bed Management</title>
-  <!-- QR & WebRTC -->
+  <!-- QR library only (no WebRTC) -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
@@ -23,12 +23,10 @@
       --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
       --gradient-danger: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
       --primary: #4f46e5;
-      --primary-dark: #4338ca;
       --danger: #e11d48;
       --danger-light: #ffe4e6;
       --success: #10b981;
       --success-light: #d1fae5;
-      --warning: #f59e0b;
       --bg-primary: #f1f5f9;
       --surface: #ffffff;
       --surface-elevated: #f8fafc;
@@ -37,9 +35,6 @@
       --text-tertiary: #94a3b8;
       --border: #e2e8f0;
       --shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      --radius-md: 0.75rem;
-      --radius-lg: 1rem;
-      --transition: all 0.2s ease;
     }
 
     body.dark {
@@ -70,13 +65,13 @@
       margin: 0 auto;
     }
 
-    /* Compact header row: toggle | title | stats */
+    /* Header row: toggle | title | stats */
     .header-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      padding: 10px 0 6px 0;
+      padding: 10px 0 6px;
       margin-bottom: 8px;
       border-bottom: 1px solid var(--border);
     }
@@ -94,7 +89,6 @@
       color: var(--text-secondary);
       flex-shrink: 0;
     }
-    .dark-toggle:active { transform: scale(0.95); }
     h1 {
       font-size: 1.1rem;
       font-weight: 700;
@@ -103,9 +97,8 @@
       -webkit-background-clip: text;
       color: transparent;
       margin: 0;
-      line-height: 1.2;
-      flex: 1;
       text-align: center;
+      flex: 1;
     }
     .stats {
       display: flex;
@@ -120,7 +113,7 @@
     }
     .stats span { display: flex; align-items: center; gap: 4px; }
 
-    /* Compact sync card */
+    /* Sync card – simple QR based */
     .sync-card {
       background: var(--surface);
       border-radius: 20px;
@@ -152,7 +145,7 @@
       align-items: center;
       gap: 6px;
       cursor: pointer;
-      transition: var(--transition);
+      transition: 0.1s ease;
       border: 1px solid var(--border);
       color: var(--text-primary);
       font-family: inherit;
@@ -160,20 +153,16 @@
     .btn-primary { background: var(--gradient-primary); color: white; border: none; }
     .btn:active { transform: scale(0.96); }
     .qr-area { text-align: center; margin-top: 8px; }
-    #qrcode {
-      display: flex;
-      justify-content: center;
-    }
+    #qrcode { display: flex; justify-content: center; }
     #qrcode img, #qrcode canvas {
-      max-width: 250px;
-      width: 250px;
+      max-width: 280px;
+      width: 280px;
       height: auto;
       background: white;
-      border-radius: 16px;
+      border-radius: 20px;
       padding: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
-    #webrtcStatus { font-size: 0.65rem; margin-top: 6px; color: var(--primary); }
     .fallback-text {
       font-size: 0.65rem;
       margin-top: 8px;
@@ -184,7 +173,7 @@
       direction: ltr;
       text-align: left;
       display: none;
-      max-height: 120px;
+      max-height: 100px;
       overflow-y: auto;
       font-family: monospace;
     }
@@ -211,8 +200,6 @@
       font-size: 0.7rem;
       font-weight: 500;
       cursor: pointer;
-      transition: var(--transition);
-      color: var(--text-secondary);
     }
     .filter-btn.active {
       background: var(--gradient-primary);
@@ -223,13 +210,10 @@
       display: flex;
       gap: 8px;
     }
-    .btn-small {
-      padding: 5px 14px;
-      font-size: 0.7rem;
-    }
+    .btn-small { padding: 5px 14px; font-size: 0.7rem; }
     .btn-danger { background: var(--gradient-danger); color: white; border: none; }
 
-    /* Bed rows - more compact */
+    /* Bed rows */
     .bed-row {
       background: var(--surface);
       border-radius: 20px;
@@ -239,7 +223,7 @@
       border: 1px solid var(--border);
     }
     .row-header {
-      padding: 0 6px 8px 6px;
+      padding: 0 6px 8px;
       font-weight: 700;
       font-size: 0.85rem;
       display: flex;
@@ -259,25 +243,14 @@
       padding: 10px 4px;
       text-align: center;
       cursor: pointer;
-      transition: var(--transition);
+      transition: 0.1s ease;
       border-top: 3px solid;
       box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
-    /* Enhanced contrast colors */
-    .bed-card.occupied {
-      background: var(--danger-light);
-      border-top-color: var(--danger);
-    }
-    .bed-card.empty {
-      background: var(--success-light);
-      border-top-color: var(--success);
-    }
-    body.dark .bed-card.occupied {
-      background: rgba(244, 63, 94, 0.2);
-    }
-    body.dark .bed-card.empty {
-      background: rgba(52, 211, 153, 0.15);
-    }
+    .bed-card.occupied { background: var(--danger-light); border-top-color: var(--danger); }
+    .bed-card.empty { background: var(--success-light); border-top-color: var(--success); }
+    body.dark .bed-card.occupied { background: rgba(244, 63, 94, 0.2); }
+    body.dark .bed-card.empty { background: rgba(52, 211, 153, 0.15); }
     .bed-card:active { transform: scale(0.96); }
     .bed-number { font-size: 1.1rem; font-weight: 800; }
     .bed-status {
@@ -288,14 +261,8 @@
       border-radius: 30px;
       display: inline-block;
     }
-    .occupied .bed-status {
-      background: var(--danger);
-      color: white;
-    }
-    .empty .bed-status {
-      background: var(--success);
-      color: white;
-    }
+    .occupied .bed-status { background: var(--danger); color: white; }
+    .empty .bed-status { background: var(--success); color: white; }
 
     .footer-note {
       text-align: center;
@@ -334,7 +301,7 @@
     @media (max-width: 480px) {
       .beds-grid { grid-template-columns: repeat(auto-fill, minmax(68px, 1fr)); gap: 8px; }
       .btn { padding: 4px 10px; font-size: 0.65rem; }
-      .filter-btn { padding: 4px 10px; font-size: 0.65rem; }
+      .filter-btn { padding: 4px 10px; }
       h1 { font-size: 0.95rem; }
       .stats { gap: 6px; padding: 3px 8px; font-size: 0.65rem; }
       .dark-toggle { width: 32px; height: 32px; }
@@ -344,7 +311,7 @@
 </head>
 <body>
 <div class="app-container">
-  <!-- Single header row: dark toggle, title, stats -->
+  <!-- Header row -->
   <div class="header-row">
     <button id="darkModeBtn" class="dark-toggle"><i class="fas fa-moon"></i></button>
     <h1>🛏️ مدیریت تخت هوشمند</h1>
@@ -354,25 +321,23 @@
     </div>
   </div>
 
-  <!-- Sync card for shift handoff (compact) -->
+  <!-- Sync card – simple QR handoff -->
   <div class="sync-card">
-    <div class="sync-title">📲 تحویل شیفت بین دو دستگاه</div>
+    <div class="sync-title">📲 تحویل شیفت (بدون اینترنت)</div>
     <div class="sync-buttons">
-      <button id="sendSyncBtn" class="btn btn-primary"><i class="fas fa-qrcode"></i> ارسال QR</button>
-      <button id="receiveSyncBtn" class="btn"><i class="fas fa-camera"></i> اسکن QR</button>
-      <button id="pasteSyncBtn" class="btn"><i class="fas fa-paste"></i> چسباندن متن</button>
-      <button id="cancelSyncBtn" class="btn" style="display: none;"><i class="fas fa-times"></i> لغو</button>
+      <button id="sendQrBtn" class="btn btn-primary"><i class="fas fa-qrcode"></i> تولید QR وضعیت</button>
+      <button id="receiveScanBtn" class="btn"><i class="fas fa-camera"></i> اسکن QR</button>
+      <button id="receivePasteBtn" class="btn"><i class="fas fa-paste"></i> چسباندن متن</button>
     </div>
     <div id="qrDisplayArea" class="qr-area" style="display: none;">
       <div id="qrcode"></div>
-      <button id="copyFallbackBtn" class="btn" style="margin-top: 8px;"><i class="fas fa-copy"></i> کپی متن پیوند (راه جایگزین)</button>
+      <button id="copyTextBtn" class="btn" style="margin-top: 10px;"><i class="fas fa-copy"></i> کپی متن (جایگزین)</button>
       <button id="hideQrBtn" class="btn" style="margin-top: 6px;">✖️ بستن</button>
     </div>
     <div id="scannerArea" style="display: none; margin-top: 8px;">
-      <div id="reader" style="border-radius: 14px; overflow: hidden; width: 100%;"></div>
+      <div id="reader" style="border-radius: 14px; overflow: hidden;"></div>
       <button id="stopScanBtn" class="btn" style="margin-top: 6px;">❌ لغو اسکن</button>
     </div>
-    <div id="webrtcStatus" style="font-size: 0.65rem; margin-top: 6px;"></div>
     <div id="fallbackText" class="fallback-text"></div>
   </div>
 
@@ -527,176 +492,109 @@
     localStorage.setItem('darkMode', document.body.classList.contains('dark'));
   }
   
-  // ---------- WEBRTC PEER-TO-PEER with better QR and fallback ----------
-  let peerConnection = null, dataChannel = null;
-  let pendingOffer = null; // for paste fallback
-  const webrtcStatusDiv = document.getElementById('webrtcStatus');
-  const configuration = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
-  
-  async function initiateSend() {
-    if (peerConnection) { showToast("همگام‌سازی فعال است، لغو کنید"); return; }
-    webrtcStatusDiv.innerText = "🔵 در حال آماده‌سازی...";
-    peerConnection = new RTCPeerConnection(configuration);
-    dataChannel = peerConnection.createDataChannel("bedsync");
-    setupDataChannelEvents(dataChannel);
-    
-    const offer = await peerConnection.createOffer();
-    await peerConnection.setLocalDescription(offer);
-    await new Promise(resolve => {
-      if (peerConnection.iceGatheringState === 'complete') resolve();
-      else peerConnection.onicegatheringstatechange = () => {
-        if (peerConnection.iceGatheringState === 'complete') resolve();
-      };
-    });
-    const sdpString = JSON.stringify({ type: peerConnection.localDescription.type, sdp: peerConnection.localDescription.sdp });
-    displayQR(sdpString, "ارسال");
-    document.getElementById('cancelSyncBtn').style.display = "inline-flex";
+  // ---------- SIMPLE QR HANDoFF (no WebRTC) ----------
+  function generateBedData() {
+    // Compact JSON: array of booleans
+    return JSON.stringify({ beds: bedsOccupied.slice(), v: 1 });
   }
   
-  function setupDataChannelEvents(channel) {
-    channel.onopen = () => {
-      webrtcStatusDiv.innerText = "✅ متصل! ارسال وضعیت...";
-      channel.send(JSON.stringify({ beds: bedsOccupied.slice() }));
-    };
-    channel.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.beds && Array.isArray(data.beds) && data.beds.length === TOTAL_BEDS) {
-          pushToHistory();
-          bedsOccupied = data.beds.slice();
-          persistState();
-          renderFiltered();
-          showToast("🔄 وضعیت از دستگاه دیگر دریافت شد", 2000);
-          closeWebRTC();
-        } else showToast("داده نامعتبر");
-      } catch(e) { showToast("خطا در دریافت داده"); }
-    };
-    channel.onclose = () => { webrtcStatusDiv.innerText = "❌ اتصال بسته شد"; closeWebRTC(); };
-    channel.onerror = () => { webrtcStatusDiv.innerText = "خطا در ارتباط"; closeWebRTC(); };
-  }
-  
-  async function initiateReceive() {
-    if (peerConnection) { showToast("لطفاً همگام‌سازی جاری را لغو کنید"); return; }
-    webrtcStatusDiv.innerText = "🟢 آماده اسکن QR...";
-    document.getElementById('scannerArea').style.display = "block";
-    document.getElementById('qrDisplayArea').style.display = "none";
-    const readerDiv = document.getElementById('reader');
-    readerDiv.innerHTML = "";
-    const html5Scanner = new Html5Qrcode("reader");
-    const config = { fps: 10, qrbox: { width: 280, height: 280 }, aspectRatio: 1.0 };
-    const onSuccess = async (decodedText) => {
-      try {
-        const data = JSON.parse(decodedText);
-        if (data.type && data.sdp && data.type === "offer") {
-          await html5Scanner.stop();
-          document.getElementById('scannerArea').style.display = "none";
-          webrtcStatusDiv.innerText = "🟣 در حال اتصال...";
-          peerConnection = new RTCPeerConnection(configuration);
-          peerConnection.ondatachannel = (event) => {
-            dataChannel = event.channel;
-            setupDataChannelEvents(dataChannel);
-          };
-          await peerConnection.setRemoteDescription(new RTCSessionDescription({ type: data.type, sdp: data.sdp }));
-          const answer = await peerConnection.createAnswer();
-          await peerConnection.setLocalDescription(answer);
-          await new Promise(resolve => {
-            if (peerConnection.iceGatheringState === 'complete') resolve();
-            else peerConnection.onicegatheringstatechange = () => {
-              if (peerConnection.iceGatheringState === 'complete') resolve();
-            };
-          });
-          const answerSdp = JSON.stringify({ type: peerConnection.localDescription.type, sdp: peerConnection.localDescription.sdp });
-          displayQR(answerSdp, "پاسخ");
-          document.getElementById('cancelSyncBtn').style.display = "inline-flex";
-        } else {
-          showToast("QR نامعتبر (نوع درخواست نامناسب)");
-          await html5Scanner.stop();
-          document.getElementById('scannerArea').style.display = "none";
-        }
-      } catch(e) { showToast("QR نامعتبر"); await html5Scanner.stop(); document.getElementById('scannerArea').style.display = "none"; }
-    };
-    await html5Scanner.start({ facingMode: "environment" }, config, onSuccess);
-    window._activeScanner = html5Scanner;
-    document.getElementById('stopScanBtn').onclick = () => { html5Scanner.stop(); document.getElementById('scannerArea').style.display = "none"; };
-  }
-  
-  function displayQR(dataStr, label) {
+  function sendQR() {
+    const dataStr = generateBedData();
     const qrDiv = document.getElementById('qrcode');
     qrDiv.innerHTML = "";
-    // Larger QR code with high error correction (Level H)
-    new QRCode(qrDiv, { text: dataStr, width: 250, height: 250, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H });
+    // Large QR with high error correction (Level H)
+    new QRCode(qrDiv, {
+      text: dataStr,
+      width: 280,
+      height: 280,
+      colorDark: "#000000",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H
+    });
     document.getElementById('qrDisplayArea').style.display = "block";
     document.getElementById('scannerArea').style.display = "none";
-    webrtcStatusDiv.innerText = `📷 کد ${label} ساخته شد (سایز بزرگ، تصحیح خطای بالا). دستگاه دیگر اسکن کند.`;
-    // Store fallback text for copy
     const fallbackDiv = document.getElementById('fallbackText');
     fallbackDiv.innerText = dataStr;
     fallbackDiv.style.display = "block";
+    showToast("QR کد وضعیت ساخته شد. دستگاه دیگر اسکن کند یا متن را کپی کند.");
   }
   
-  async function pasteConnection() {
+  function startScanner() {
+    document.getElementById('qrDisplayArea').style.display = "none";
+    const scannerDiv = document.getElementById('scannerArea');
+    scannerDiv.style.display = "block";
+    const readerElem = document.getElementById('reader');
+    readerElem.innerHTML = "";
+    const html5Scanner = new Html5Qrcode("reader");
+    const config = { fps: 10, qrbox: { width: 280, height: 280 }, aspectRatio: 1.0 };
+    const onSuccess = (decodedText) => {
+      try {
+        const data = JSON.parse(decodedText);
+        if (data.beds && Array.isArray(data.beds) && data.beds.length === TOTAL_BEDS) {
+          const valid = data.beds.every(item => typeof item === 'boolean');
+          if (valid) {
+            pushToHistory();
+            bedsOccupied = data.beds.slice();
+            persistState();
+            renderFiltered();
+            showToast("✅ وضعیت تخت‌ها از QR دریافت شد", 2000);
+            html5Scanner.stop().catch(e=>console.log);
+            scannerDiv.style.display = "none";
+          } else throw new Error("Invalid data type");
+        } else throw new Error("Invalid structure");
+      } catch(e) {
+        showToast("QR نامعتبر: داده تخت‌ها صحیح نیست", 2000);
+        html5Scanner.stop().catch(e=>console.log);
+        scannerDiv.style.display = "none";
+      }
+    };
+    html5Scanner.start({ facingMode: "environment" }, config, onSuccess).catch(err => {
+      showToast("دسترسی به دوربین ممکن نیست", 2000);
+      scannerDiv.style.display = "none";
+    });
+    window._activeScanner = html5Scanner;
+    document.getElementById('stopScanBtn').onclick = () => {
+      html5Scanner.stop().catch(e=>console.log);
+      scannerDiv.style.display = "none";
+    };
+  }
+  
+  async function pasteFromClipboard() {
     try {
       const text = await navigator.clipboard.readText();
       if (!text) { showToast("کلیپ‌بورد خالی است"); return; }
       const data = JSON.parse(text);
-      if (data.type && data.sdp && data.type === "offer") {
-        // Acting as receiver (answer)
-        if (peerConnection) { showToast("لطفاً همگام‌سازی جاری را لغو کنید"); return; }
-        webrtcStatusDiv.innerText = "🟣 در حال اتصال با متن چسبانده شده...";
-        peerConnection = new RTCPeerConnection(configuration);
-        peerConnection.ondatachannel = (event) => {
-          dataChannel = event.channel;
-          setupDataChannelEvents(dataChannel);
-        };
-        await peerConnection.setRemoteDescription(new RTCSessionDescription({ type: data.type, sdp: data.sdp }));
-        const answer = await peerConnection.createAnswer();
-        await peerConnection.setLocalDescription(answer);
-        await new Promise(resolve => {
-          if (peerConnection.iceGatheringState === 'complete') resolve();
-          else peerConnection.onicegatheringstatechange = () => {
-            if (peerConnection.iceGatheringState === 'complete') resolve();
-          };
-        });
-        const answerSdp = JSON.stringify({ type: peerConnection.localDescription.type, sdp: peerConnection.localDescription.sdp });
-        displayQR(answerSdp, "پاسخ (متن)");
-        document.getElementById('cancelSyncBtn').style.display = "inline-flex";
-        showToast("✅ اتصال برقرار شد. در حال ارسال وضعیت...");
-      } else if (data.type && data.sdp && data.type === "answer") {
-        // If we have a pending offer, complete connection
-        if (peerConnection && peerConnection.localDescription && peerConnection.localDescription.type === "offer") {
-          await peerConnection.setRemoteDescription(new RTCSessionDescription({ type: data.type, sdp: data.sdp }));
-          webrtcStatusDiv.innerText = "✅ اتصال کامل شد، در حال دریافت وضعیت...";
-        } else {
-          showToast("ابتدا باید در دستگاه دیگر دکمه 'ارسال QR' زده شود");
-        }
-      } else {
-        showToast("متن معتبر برای همگام‌سازی نیست");
-      }
-    } catch(e) { showToast("خطا در خواندن یا پردازش متن کلیپ‌بورد"); }
+      if (data.beds && Array.isArray(data.beds) && data.beds.length === TOTAL_BEDS) {
+        const valid = data.beds.every(item => typeof item === 'boolean');
+        if (valid) {
+          pushToHistory();
+          bedsOccupied = data.beds.slice();
+          persistState();
+          renderFiltered();
+          showToast("✅ وضعیت تخت‌ها از متن کپی شده دریافت شد", 2000);
+        } else throw new Error("Invalid data");
+      } else throw new Error("Invalid structure");
+    } catch(e) {
+      showToast("متن معتبری در کلیپ‌بورد نیست (داده تخت‌ها نامعتبر)", 2000);
+    }
   }
   
-  function copyFallback() {
+  function copyFallbackText() {
     const text = document.getElementById('fallbackText').innerText;
     if (!text) return;
     navigator.clipboard.writeText(text).then(() => {
-      showToast("📋 متن پیوند کپی شد. حالا در دستگاه دیگر دکمه 'چسباندن متن' را بزنید.");
+      showToast("📋 متن وضعیت کپی شد. حالا در دستگاه دیگر دکمه 'چسباندن متن' را بزنید.");
     }).catch(() => showToast("کپی ناموفق"));
   }
   
-  function closeWebRTC() {
-    if (dataChannel) dataChannel.close();
-    if (peerConnection) peerConnection.close();
-    peerConnection = null; dataChannel = null;
-    document.getElementById('cancelSyncBtn').style.display = "none";
+  function hideQR() {
     document.getElementById('qrDisplayArea').style.display = "none";
-    document.getElementById('scannerArea').style.display = "none";
-    webrtcStatusDiv.innerText = "";
-    const fallbackDiv = document.getElementById('fallbackText');
-    fallbackDiv.style.display = "none";
-    fallbackDiv.innerText = "";
+    document.getElementById('fallbackText').style.display = "none";
+    if (window._activeScanner) {
+      window._activeScanner.stop().catch(e=>console.log);
+      window._activeScanner = null;
+    }
   }
-  
-  function cancelSync() { closeWebRTC(); showToast("همگام‌سازی لغو شد"); }
   
   function setAllEmpty() {
     if (confirm("همه تخت‌ها خالی می‌شوند. ادامه؟")) {
@@ -723,17 +621,16 @@
     attachBedEvents();
     document.getElementById('undoBtn').onclick = undo;
     document.getElementById('darkModeBtn').onclick = toggleDarkMode;
-    document.getElementById('sendSyncBtn').onclick = initiateSend;
-    document.getElementById('receiveSyncBtn').onclick = initiateReceive;
-    document.getElementById('pasteSyncBtn').onclick = pasteConnection;
+    document.getElementById('sendQrBtn').onclick = sendQR;
+    document.getElementById('receiveScanBtn').onclick = startScanner;
+    document.getElementById('receivePasteBtn').onclick = pasteFromClipboard;
     document.getElementById('clearAllBtn').onclick = setAllEmpty;
     document.getElementById('filterAll').onclick = () => setFilter('all');
     document.getElementById('filterEmpty').onclick = () => setFilter('empty');
     document.getElementById('filterOccupied').onclick = () => setFilter('occupied');
-    document.getElementById('hideQrBtn').onclick = () => { document.getElementById('qrDisplayArea').style.display = "none"; closeWebRTC(); };
-    document.getElementById('cancelSyncBtn').onclick = cancelSync;
+    document.getElementById('hideQrBtn').onclick = hideQR;
     document.getElementById('stopScanBtn').onclick = () => { if(window._activeScanner) window._activeScanner.stop(); document.getElementById('scannerArea').style.display = "none"; };
-    document.getElementById('copyFallbackBtn').onclick = copyFallback;
+    document.getElementById('copyTextBtn').onclick = copyFallbackText;
     if (localStorage.getItem('darkMode') === 'true') toggleDarkMode();
   }
   init();
