@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0f172a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>مدیریت تخت اورژانس | FoxiBed</title>
+  <title>مدیریت تخت هوشمند | Smart Bed Management</title>
   <!-- QR & WebRTC -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
@@ -22,44 +22,46 @@
       --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
       --gradient-danger: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
-      --gradient-dark: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
-      --primary: #667eea;
-      --primary-dark: #5a67d8;
-      --primary-light: rgba(102, 126, 234, 0.15);
-      --danger: #ff6b6b;
-      --success: #4cd964;
-      --warning: #ffa726;
-      --bg-primary: #f8fafc;
+      --primary: #4f46e5;
+      --primary-dark: #4338ca;
+      --danger: #e11d48;
+      --danger-light: #ffe4e6;
+      --success: #10b981;
+      --success-light: #d1fae5;
+      --warning: #f59e0b;
+      --bg-primary: #f1f5f9;
       --surface: #ffffff;
-      --surface-elevated: #f1f5f9;
+      --surface-elevated: #f8fafc;
       --text-primary: #1e293b;
-      --text-secondary: #64748b;
+      --text-secondary: #475569;
       --text-tertiary: #94a3b8;
       --border: #e2e8f0;
-      --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
-      --radius-md: 1rem;
-      --radius-lg: 1.25rem;
-      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      --shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      --radius-md: 0.75rem;
+      --radius-lg: 1rem;
+      --transition: all 0.2s ease;
     }
 
     body.dark {
-      --bg-primary: #111827;
-      --surface: #1f2937;
-      --surface-elevated: #374151;
-      --text-primary: #f9fafb;
-      --text-secondary: #d1d5db;
-      --text-tertiary: #9ca3af;
-      --border: #374151;
-      --shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-      --primary: #60a5fa;
+      --bg-primary: #0f172a;
+      --surface: #1e293b;
+      --surface-elevated: #334155;
+      --text-primary: #f1f5f9;
+      --text-secondary: #cbd5e1;
+      --text-tertiary: #94a3b8;
+      --border: #334155;
+      --primary: #818cf8;
+      --danger: #f43f5e;
+      --danger-light: #4c0519;
+      --success: #34d399;
+      --success-light: #064e3b;
     }
 
     body {
       font-family: 'Vazirmatn', system-ui, 'Segoe UI', 'Roboto', sans-serif;
       background: var(--bg-primary);
       color: var(--text-primary);
-      padding: 0 12px 24px;
+      padding: 0 10px 20px 10px;
       transition: background 0.2s, color 0.2s;
     }
 
@@ -68,56 +70,87 @@
       margin: 0 auto;
     }
 
-    /* header */
+    /* Compact header */
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
-      padding: 16px 0 12px;
+      padding: 12px 0 6px 0;
+      margin-bottom: 8px;
       border-bottom: 1px solid var(--border);
-      margin-bottom: 16px;
     }
     h1 {
-      font-size: 1.5rem;
+      font-size: 1.2rem;
       font-weight: 700;
       background: var(--gradient-primary);
       background-clip: text;
       -webkit-background-clip: text;
       color: transparent;
-      letter-spacing: -0.3px;
     }
     .stats {
       display: flex;
       gap: 12px;
       background: var(--surface);
-      padding: 6px 14px;
-      border-radius: 60px;
-      font-size: 0.8rem;
+      padding: 4px 12px;
+      border-radius: 40px;
+      font-size: 0.7rem;
       font-weight: 600;
-      box-shadow: var(--shadow-sm);
+      box-shadow: var(--shadow);
     }
-    .stats span { display: flex; align-items: center; gap: 5px; }
+    .stats span { display: flex; align-items: center; gap: 4px; }
 
-    /* action row */
-    .action-row {
+    /* Top left dark mode icon only */
+    .top-bar {
       display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
+      justify-content: flex-start;
+      margin-bottom: 10px;
+    }
+    .icon-only {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
       justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      color: var(--text-secondary);
+    }
+    .icon-only:active { transform: scale(0.95); }
+
+    /* Compact sync card */
+    .sync-card {
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    .sync-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-tertiary);
+      margin-bottom: 8px;
+    }
+    .sync-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
     }
     .btn {
       border: none;
-      background: var(--surface);
-      padding: 8px 18px;
+      background: var(--surface-elevated);
+      padding: 6px 14px;
       border-radius: 40px;
       font-weight: 500;
-      font-size: 0.8rem;
+      font-size: 0.7rem;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       cursor: pointer;
       transition: var(--transition);
       border: 1px solid var(--border);
@@ -125,55 +158,31 @@
       font-family: inherit;
     }
     .btn-primary { background: var(--gradient-primary); color: white; border: none; }
-    .btn-danger { background: var(--gradient-danger); color: white; border: none; }
-    .btn-icon { background: var(--surface-elevated); }
     .btn:active { transform: scale(0.96); }
+    .qr-area { text-align: center; margin-top: 8px; }
+    #qrcode img, #qrcode canvas { max-width: 110px; background: white; border-radius: 12px; padding: 6px; }
+    #webrtcStatus { font-size: 0.65rem; margin-top: 6px; color: var(--primary); }
 
-    /* sync card */
-    .sync-card {
-      background: var(--surface);
-      border-radius: 24px;
-      padding: 16px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow-sm);
-      border: 1px solid var(--border);
-    }
-    .sync-title {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-tertiary);
-      margin-bottom: 12px;
-    }
-    .sync-buttons {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .qr-area { text-align: center; margin-top: 12px; }
-    #qrcode img, #qrcode canvas { max-width: 140px; background: white; border-radius: 16px; padding: 8px; }
-    #webrtcStatus { font-size: 0.7rem; margin-top: 8px; color: var(--primary); }
-
-    /* filter bar */
-    .filter-bar {
+    /* Filter bar + Undo + Clear all */
+    .action-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 20px;
+      gap: 8px;
+      margin-bottom: 14px;
     }
     .filter-group {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
     }
     .filter-btn {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 40px;
-      padding: 6px 16px;
-      font-size: 0.75rem;
+      border-radius: 30px;
+      padding: 5px 14px;
+      font-size: 0.7rem;
       font-weight: 500;
       cursor: pointer;
       transition: var(--transition);
@@ -184,91 +193,109 @@
       border-color: transparent;
       color: white;
     }
-    .clear-btn {
-      background: var(--gradient-danger);
-      border: none;
-      padding: 6px 20px;
-      border-radius: 40px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: white;
-      cursor: pointer;
+    .right-actions {
+      display: flex;
+      gap: 8px;
     }
+    .btn-small {
+      padding: 5px 14px;
+      font-size: 0.7rem;
+    }
+    .btn-danger { background: var(--gradient-danger); color: white; border: none; }
 
-    /* bed rows */
+    /* Bed rows - more compact */
     .bed-row {
       background: var(--surface);
-      border-radius: 28px;
-      padding: 16px 12px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow-sm);
+      border-radius: 20px;
+      padding: 12px 10px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
       border: 1px solid var(--border);
     }
     .row-header {
-      padding: 0 8px 12px;
+      padding: 0 6px 8px 6px;
       font-weight: 700;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       display: flex;
       align-items: baseline;
-      gap: 10px;
+      gap: 8px;
       border-right: 3px solid var(--primary);
       margin-right: 4px;
     }
     .beds-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
+      gap: 10px;
     }
     .bed-card {
       background: var(--surface-elevated);
-      border-radius: 20px;
-      padding: 12px 6px;
+      border-radius: 18px;
+      padding: 10px 4px;
       text-align: center;
       cursor: pointer;
       transition: var(--transition);
       border-top: 3px solid;
-      box-shadow: var(--shadow-sm);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
-    .bed-card.occupied { background: rgba(255, 107, 107, 0.1); border-top-color: var(--danger); }
-    .bed-card.empty { background: rgba(76, 217, 100, 0.1); border-top-color: var(--success); }
+    /* Enhanced contrast colors */
+    .bed-card.occupied {
+      background: var(--danger-light);
+      border-top-color: var(--danger);
+    }
+    .bed-card.empty {
+      background: var(--success-light);
+      border-top-color: var(--success);
+    }
+    body.dark .bed-card.occupied {
+      background: rgba(244, 63, 94, 0.2);
+    }
+    body.dark .bed-card.empty {
+      background: rgba(52, 211, 153, 0.15);
+    }
     .bed-card:active { transform: scale(0.96); }
-    .bed-number { font-size: 1.2rem; font-weight: 800; }
+    .bed-number { font-size: 1.1rem; font-weight: 800; }
     .bed-status {
       font-size: 0.6rem;
       font-weight: 700;
-      margin-top: 6px;
-      padding: 3px 8px;
+      margin-top: 5px;
+      padding: 2px 6px;
       border-radius: 30px;
       display: inline-block;
     }
-    .occupied .bed-status { background: rgba(255, 107, 107, 0.2); color: var(--danger); }
-    .empty .bed-status { background: rgba(76, 217, 100, 0.2); color: var(--success); }
+    .occupied .bed-status {
+      background: var(--danger);
+      color: white;
+    }
+    .empty .bed-status {
+      background: var(--success);
+      color: white;
+    }
 
     .footer-note {
       text-align: center;
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       color: var(--text-tertiary);
-      margin-top: 20px;
-      padding: 8px;
+      margin-top: 16px;
+      padding: 6px;
       border-top: 1px solid var(--border);
     }
     .credit {
       text-align: center;
-      font-size: 0.6rem;
+      font-size: 0.55rem;
       color: var(--text-tertiary);
-      margin-top: 10px;
+      margin-top: 6px;
       direction: ltr;
     }
     .toast {
       position: fixed;
-      bottom: 24px;
+      bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
       background: #1e293b;
       color: white;
-      padding: 8px 20px;
-      border-radius: 60px;
-      font-size: 0.75rem;
+      padding: 6px 16px;
+      border-radius: 40px;
+      font-size: 0.7rem;
       z-index: 1000;
       animation: fadeOut 2s ease forwards;
       pointer-events: none;
@@ -276,72 +303,75 @@
     @keyframes fadeOut {
       0% { opacity: 1; transform: translateX(-50%) translateY(0); }
       70% { opacity: 1; }
-      100% { opacity: 0; transform: translateX(-50%) translateY(-10px); visibility: hidden; }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-8px); visibility: hidden; }
     }
     @media (max-width: 480px) {
-      .beds-grid { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px; }
-      .btn { padding: 6px 12px; font-size: 0.7rem; }
+      .beds-grid { grid-template-columns: repeat(auto-fill, minmax(68px, 1fr)); gap: 8px; }
+      .btn { padding: 4px 10px; font-size: 0.65rem; }
+      .filter-btn { padding: 4px 10px; font-size: 0.65rem; }
     }
   </style>
 </head>
 <body>
 <div class="app-container">
-  <!-- Header -->
+  <!-- Dark mode icon only (top left) -->
+  <div class="top-bar">
+    <button id="darkModeBtn" class="icon-only"><i class="fas fa-moon"></i></button>
+  </div>
+
+  <!-- Header with title and stats -->
   <div class="header">
-    <h1>🛏️ FoxiBed | مدیریت تخت</h1>
+    <h1>🛏️ مدیریت تخت هوشمند</h1>
     <div class="stats">
       <span>🟢 <span id="emptyCount">0</span></span>
       <span>🔴 <span id="occupiedCount">0</span></span>
     </div>
   </div>
 
-  <!-- Action row: Dark mode + Undo -->
-  <div class="action-row">
-    <button id="darkModeBtn" class="btn btn-icon"><i class="fas fa-moon"></i> حالت شب</button>
-    <button id="undoBtn" class="btn btn-icon"><i class="fas fa-undo-alt"></i> واگرد</button>
-  </div>
-
-  <!-- Sync card for shift handoff (WebRTC + QR) -->
+  <!-- Sync card for shift handoff (compact) -->
   <div class="sync-card">
     <div class="sync-title">📲 تحویل شیفت بین دو دستگاه</div>
     <div class="sync-buttons">
-      <button id="sendSyncBtn" class="btn btn-primary"><i class="fas fa-qrcode"></i> ارسال وضعیت (QR)</button>
-      <button id="receiveSyncBtn" class="btn btn-icon"><i class="fas fa-camera"></i> دریافت وضعیت (اسکن)</button>
-      <button id="cancelSyncBtn" class="btn btn-icon" style="display: none;"><i class="fas fa-times"></i> لغو</button>
+      <button id="sendSyncBtn" class="btn btn-primary"><i class="fas fa-qrcode"></i> ارسال QR</button>
+      <button id="receiveSyncBtn" class="btn"><i class="fas fa-camera"></i> اسکن QR</button>
+      <button id="cancelSyncBtn" class="btn" style="display: none;"><i class="fas fa-times"></i> لغو</button>
     </div>
     <div id="qrDisplayArea" class="qr-area" style="display: none;">
       <div id="qrcode"></div>
-      <button id="hideQrBtn" class="btn btn-icon" style="margin-top: 8px;">✖️ بستن</button>
+      <button id="hideQrBtn" class="btn" style="margin-top: 6px;">✖️ بستن</button>
     </div>
-    <div id="scannerArea" style="display: none; margin-top: 10px;">
-      <div id="reader" class="scanner-container" style="border-radius: 16px; overflow: hidden;"></div>
-      <button id="stopScanBtn" class="btn btn-icon" style="margin-top: 8px;">❌ لغو اسکن</button>
+    <div id="scannerArea" style="display: none; margin-top: 8px;">
+      <div id="reader" style="border-radius: 14px; overflow: hidden;"></div>
+      <button id="stopScanBtn" class="btn" style="margin-top: 6px;">❌ لغو اسکن</button>
     </div>
-    <div id="webrtcStatus" style="font-size: 0.7rem; margin-top: 8px;"></div>
+    <div id="webrtcStatus" style="font-size: 0.65rem; margin-top: 6px;"></div>
   </div>
 
-  <!-- Filter + Clear all -->
-  <div class="filter-bar">
+  <!-- Filter bar + Undo + Clear all -->
+  <div class="action-bar">
     <div class="filter-group">
       <button id="filterAll" class="filter-btn active">همه</button>
-      <button id="filterEmpty" class="filter-btn">🟢 فقط خالی</button>
-      <button id="filterOccupied" class="filter-btn">🔴 فقط اشغال</button>
+      <button id="filterEmpty" class="filter-btn">🟢 خالی</button>
+      <button id="filterOccupied" class="filter-btn">🔴 اشغال</button>
     </div>
-    <button id="clearAllBtn" class="clear-btn"><i class="fas fa-trash-alt"></i> همه تخلیه</button>
+    <div class="right-actions">
+      <button id="undoBtn" class="btn btn-small"><i class="fas fa-undo-alt"></i> برگشت</button>
+      <button id="clearAllBtn" class="btn btn-small btn-danger"><i class="fas fa-trash-alt"></i> همه تخلیه</button>
+    </div>
   </div>
 
   <!-- Beds container -->
   <div id="rowsContainer"></div>
 
   <div class="footer-note">
-    ✅ روی هر تخت ضربه بزنید → پذیرش / ترخیص · دکمه واگرد برای بازگشت · فیلتر برای نمایش خالی/اشغال
+    ✅ روی هر تخت ضربه بزنید → پذیرش / ترخیص · برگشت = بازگشت به وضعیت قبل · فیلتر برای نمایش خالی/اشغال
   </div>
   <div class="credit">Designed and developed by Mohammad Mahdi Taghavi</div>
 </div>
 
 <script>
   // ---------- STATE & HISTORY ----------
-  const STORAGE_KEY = 'foxibed_state';
+  const STORAGE_KEY = 'smart_bed_state';
   const TOTAL_BEDS = 42;
   let bedsOccupied = new Array(TOTAL_BEDS).fill(false);
   let historyStack = [];
@@ -366,7 +396,7 @@
     bedsOccupied = previous.slice();
     persistState();
     renderFiltered();
-    showToast("↩️ واگرد انجام شد", 1200);
+    showToast("↩️ بازگشت به وضعیت قبل", 1200);
     localStorage.setItem(STORAGE_KEY + '_history', JSON.stringify(historyStack));
   }
   
@@ -464,7 +494,7 @@
   function toggleDarkMode() {
     document.body.classList.toggle('dark');
     const btn = document.getElementById('darkModeBtn');
-    btn.innerHTML = document.body.classList.contains('dark') ? "<i class='fas fa-sun'></i> حالت روز" : "<i class='fas fa-moon'></i> حالت شب";
+    btn.innerHTML = document.body.classList.contains('dark') ? "<i class='fas fa-sun'></i>" : "<i class='fas fa-moon'></i>";
     localStorage.setItem('darkMode', document.body.classList.contains('dark'));
   }
   
@@ -475,7 +505,7 @@
   
   async function initiateSend() {
     if (peerConnection) { showToast("همگام‌سازی فعال است، لغو کنید"); return; }
-    webrtcStatusDiv.innerText = "🔵 در حال آماده‌سازی اتصال...";
+    webrtcStatusDiv.innerText = "🔵 در حال آماده‌سازی...";
     peerConnection = new RTCPeerConnection(configuration);
     dataChannel = peerConnection.createDataChannel("bedsync");
     setupDataChannelEvents(dataChannel);
@@ -495,7 +525,7 @@
   
   function setupDataChannelEvents(channel) {
     channel.onopen = () => {
-      webrtcStatusDiv.innerText = "✅ متصل! ارسال وضعیت فعلی...";
+      webrtcStatusDiv.innerText = "✅ متصل! ارسال وضعیت...";
       channel.send(JSON.stringify({ beds: bedsOccupied.slice() }));
     };
     channel.onmessage = (event) => {
@@ -517,7 +547,7 @@
   
   async function initiateReceive() {
     if (peerConnection) { showToast("لطفاً همگام‌سازی جاری را لغو کنید"); return; }
-    webrtcStatusDiv.innerText = "🟢 آماده اسکن QR از دستگاه دیگر...";
+    webrtcStatusDiv.innerText = "🟢 آماده اسکن QR...";
     document.getElementById('scannerArea').style.display = "block";
     document.getElementById('qrDisplayArea').style.display = "none";
     const readerDiv = document.getElementById('reader');
@@ -548,7 +578,7 @@
           displayQR(answerSdp, "پاسخ");
           document.getElementById('cancelSyncBtn').style.display = "inline-flex";
         } else {
-          showToast("QR نامعتبر: باید از دکمه ارسال دستگاه دیگر گرفته شود");
+          showToast("QR نامعتبر");
           await html5Scanner.stop();
           document.getElementById('scannerArea').style.display = "none";
         }
@@ -562,10 +592,10 @@
   function displayQR(dataStr, label) {
     const qrDiv = document.getElementById('qrcode');
     qrDiv.innerHTML = "";
-    new QRCode(qrDiv, { text: dataStr, width: 140, height: 140 });
+    new QRCode(qrDiv, { text: dataStr, width: 120, height: 120 });
     document.getElementById('qrDisplayArea').style.display = "block";
     document.getElementById('scannerArea').style.display = "none";
-    webrtcStatusDiv.innerText = `📷 کد ${label} ساخته شد. دستگاه دیگر آن را اسکن کند.`;
+    webrtcStatusDiv.innerText = `📷 کد ${label} ساخته شد. دستگاه دیگر اسکن کند.`;
   }
   
   function closeWebRTC() {
@@ -594,7 +624,6 @@
     }
   }
   
-  // event delegation for bed taps
   function attachBedEvents() {
     document.body.addEventListener('click', (e) => {
       const card = e.target.closest('.bed-card');
@@ -608,7 +637,6 @@
     loadState();
     renderFiltered();
     attachBedEvents();
-    // UI buttons
     document.getElementById('undoBtn').onclick = undo;
     document.getElementById('darkModeBtn').onclick = toggleDarkMode;
     document.getElementById('sendSyncBtn').onclick = initiateSend;
@@ -624,9 +652,7 @@
   }
   init();
 </script>
-<!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<!-- Persian font -->
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
 </body>
 </html>
